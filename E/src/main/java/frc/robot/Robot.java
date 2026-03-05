@@ -7,15 +7,26 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.wpilibj.AnalogEncoder;
+import edu.wpi.first.wpilibj.AnalogEncoder;
+import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.util.datalog.DataLog;
+// Starts recording to data log
 
 /**
  * The methods in this class are called automatically corresponding to each mode, as described in
  * the TimedRobot documentation. If you change the name of this class or the package after creating
  * this project, you must also update the Main.java file in the project.
  */
+
+
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
-
+  AnalogEncoder encoder0 = new AnalogEncoder(0);
+  AnalogEncoder encoder1 = new AnalogEncoder(1);
+  AnalogEncoder encoder2 = new AnalogEncoder(2);
+  AnalogEncoder encoder3 = new AnalogEncoder(3);
   private final RobotContainer m_robotContainer;
 
   /**
@@ -23,9 +34,12 @@ public class Robot extends TimedRobot {
    * initialization code.
    */
   public Robot() {
+    DataLogManager.start();
+
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
+    
   }
 
   /**
@@ -79,7 +93,13 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+    DoubleLogEntry myDoubleLog = new DoubleLogEntry(DataLogManager.getLog(), "/my/encoders");
+    myDoubleLog.append(encoder0.get());
+    myDoubleLog.append(encoder1.get());
+    myDoubleLog.append(encoder2.get());
+    myDoubleLog.append(encoder3.get());
+  }
 
   @Override
   public void testInit() {
