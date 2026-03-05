@@ -17,6 +17,8 @@ public class IntakeArm extends SubsystemBase
     public IntakeArm() {
         // Initialize your intake arm components here
     }
+    //to do: switch to a closed loop control of the deploy motor using the angle measurement as feedback, and add a command to move to a specific angle
+    
     final TalonFX m_deploymotor = new TalonFX(IntakeConstants.kDeployMotorCanID);
     final SparkMax m_intakemotor = new SparkMax(IntakeConstants.kIntakeMotorCanID, MotorType.kBrushless);
     

@@ -8,6 +8,8 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 public class ShooterSubsystem extends SubsystemBase {
+    //to do: everything
+
     // Define your shooter motors and any necessary variables here
     final SparkMax m_LoaderMotor = new SparkMax(ShooterConstants.kShooterLoaderMotorCanID, MotorType.kBrushless);
     final TalonFX m_RearMotor = new TalonFX(ShooterConstants.kShooterRearMotorCanID);
