@@ -23,8 +23,11 @@ public class ShooterSubsystem extends SubsystemBase {
     public Command runShooter() {
         return run(() -> {
             // Code to set shooter motors to the desired speed
+
         });
     }
+
+ //   public static void 
 
     // Define methods to control the shooter, such as setting speed, stopping, etc.
     
