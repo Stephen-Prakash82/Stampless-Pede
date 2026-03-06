@@ -9,7 +9,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.AnalogEncoder;
-import edu.wpi.first.wpilibj.AnalogEncoder;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.wpilibj.AnalogInput;
@@ -26,17 +25,17 @@ import edu.wpi.first.wpilibj.AnalogInput;
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
-  private final AnalogInput m_analogInput1 = new AnalogInput(0);
-  private final AnalogEncoder m_encoder1 = new AnalogEncoder(m_analogInput1);
+  // private final AnalogInput m_analogInput1 = new AnalogInput(0);
+  // private final AnalogEncoder m_encoder1 = new AnalogEncoder(m_analogInput1);
 
-  private final AnalogInput m_analogInput2 = new AnalogInput(0);
-  private final AnalogEncoder m_encoder2 = new AnalogEncoder(m_analogInput2);
+  // private final AnalogInput m_analogInput2 = new AnalogInput(0);
+  // private final AnalogEncoder m_encoder2 = new AnalogEncoder(m_analogInput2);
 
-  private final AnalogInput m_analogInput3 = new AnalogInput(0);
-  private final AnalogEncoder m_encoder3 = new AnalogEncoder(m_analogInput3);
+  // private final AnalogInput m_analogInput3 = new AnalogInput(0);
+  // private final AnalogEncoder m_encoder3 = new AnalogEncoder(m_analogInput3);
 
-  private final AnalogInput m_analogInput4 = new AnalogInput(0);
-  private final AnalogEncoder m_encoder4 = new AnalogEncoder(m_analogInput4);
+  // private final AnalogInput m_analogInput4 = new AnalogInput(0);
+  // private final AnalogEncoder m_encoder4 = new AnalogEncoder(m_analogInput4);
 
   private final RobotContainer m_robotContainer;
 
@@ -105,15 +104,15 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    DoubleLogEntry encoderLogger1 = new DoubleLogEntry(DataLogManager.getLog(), "/my/encoders/encoder0");
-    DoubleLogEntry encoderLogger2 = new DoubleLogEntry(DataLogManager.getLog(), "/my/encoders/encoder1");
-    DoubleLogEntry encoderLogger3 = new DoubleLogEntry(DataLogManager.getLog(), "/my/encoders/encoder2");
-    DoubleLogEntry encoderLogger4 = new DoubleLogEntry(DataLogManager.getLog(), "/my/encoders/encoder3");
+    // DoubleLogEntry encoderLogger1 = new DoubleLogEntry(DataLogManager.getLog(), "/my/encoders/encoder0");
+    // DoubleLogEntry encoderLogger2 = new DoubleLogEntry(DataLogManager.getLog(), "/my/encoders/encoder1");
+    // DoubleLogEntry encoderLogger3 = new DoubleLogEntry(DataLogManager.getLog(), "/my/encoders/encoder2");
+    // DoubleLogEntry encoderLogger4 = new DoubleLogEntry(DataLogManager.getLog(), "/my/encoders/encoder3");
 
-    encoderLogger1.append(m_encoder1.get());
-    encoderLogger2.append(m_encoder2.get());
-    encoderLogger3.append(m_encoder3.get());
-    encoderLogger4.append(m_encoder4.get());
+    // encoderLogger1.append(m_encoder1.get());
+    // encoderLogger2.append(m_encoder2.get());
+    // encoderLogger3.append(m_encoder3.get());
+    // encoderLogger4.append(m_encoder4.get());
   }
 
   @Override

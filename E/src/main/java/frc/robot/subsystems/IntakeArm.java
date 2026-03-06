@@ -31,6 +31,9 @@ public class IntakeArm extends SubsystemBase
 
         return run(()->{
             m_DeployMotor.setControl(m_DeployDutyCycle);
+        })
+        .finallyDo(()->{
+            m_DeployMotor.stopMotor();
         });
 
     }
@@ -38,6 +41,9 @@ public class IntakeArm extends SubsystemBase
 
         return run(()->{
             m_DeployMotor.setControl(m_RetractDutyCycle);
+        })
+        .finallyDo(()->{
+            m_DeployMotor.stopMotor();
         });
 
     }
@@ -48,7 +54,7 @@ public class IntakeArm extends SubsystemBase
     }
     public Command stopIntake() {
         return run(() -> {
-            m_IntakeMotor.set(0);
+            m_IntakeMotor.stopMotor();;
         });
     }
     public Angle getAngle() {
