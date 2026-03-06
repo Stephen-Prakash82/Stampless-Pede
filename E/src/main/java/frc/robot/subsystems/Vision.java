@@ -1,3 +1,14 @@
+/*
+this is example code but I think we should
+re do it in the PhotonVision class instead of having a separate vision class. 
+*/
+
+
+
+
+
+
+
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Microseconds;
@@ -47,12 +58,13 @@ import swervelib.telemetry.SwerveDriveTelemetry;
  */
 public class Vision
 {
+  //CHECK THE TOP OF THIS FILE!!!!!
 
   /**
    * April Tag Field Layout of the year.
    */
   public static final AprilTagFieldLayout fieldLayout                     = AprilTagFieldLayout.loadField(
-      AprilTagFields.k2025ReefscapeAndyMark);
+      AprilTagFields.k2026RebuiltAndymark);
   /**
    * Ambiguity defined as a value between (0,1). Used in {@link Vision#filterPose}.
    */
