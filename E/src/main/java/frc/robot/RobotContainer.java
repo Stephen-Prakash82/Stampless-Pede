@@ -15,7 +15,7 @@ import java.io.File;
 import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.wpilibj.Filesystem;
-// import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.IntakeArm;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -31,6 +31,7 @@ public class RobotContainer {
   // The robot's subsystems
   private final SwerveSubsystem m_swervedrive = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),"swerve"));
   private final ShooterSubsystem m_shooter = new ShooterSubsystem();
+  private final IntakeArm m_intake = new IntakeArm();
   //private final MotorTest m_motorTest = new MotorTest();
 
 
@@ -72,56 +73,10 @@ public class RobotContainer {
     Command driveFieldOrientedAnglularVelocity = m_swervedrive.driveFieldOriented(driveAngularVelocity);
       m_swervedrive.setDefaultCommand(driveFieldOrientedAnglularVelocity);
 
-    // Control the drive with split-stick arcade controls
-    // m_swervedrive.setDefaultCommand(
-    //     m_swervedrive.arcadeDriveCommand(
-    //         () -> -m_swervedriverController.getLeftY(), () -> -m_swervedriverController.getRightX()));
-
-    // Bind full set of SysId routine tests to buttons; a complete routine should run each of these
-    // once.
-    // Using bumpers as a modifier and combining it with the buttons so that we can have both sets
-    // of bindings at once
-    //m_DriverController.a().whileTrue(m_swervedrive.sysIdAngleMotorCommand());
-    //m_DriverController.b().whileTrue(m_swervedrive.sysIdDriveMotorCommand());
-
-    // m_DriverController.povUp()
-    //    .onTrue(m_motorTest.runTestMotor());
-    //  m_DriverController.povUp()
-    //    .onFalse(m_motorTest.stopTestMotor());
-
-    m_DriverController.y()
-       .onChange(m_shooter.runLoaderMotor());
-     m_DriverController.x().onChange(m_shooter.stop());
-
-
-    // m_DriverController
-    //     .x()
-    //     .and(m_swervedriverController.rightBumper())
-    //     .whileTrue(m_swervedrive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    // m_swervedriverController
-    //     .y()
-    //     .and(m_swervedriverController.rightBumper())
-    //     .whileTrue(m_swervedrive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-
-    // Control the shooter wheel with the left trigger
-//     m_shooter.setDefaultCommand(m_shooter.runShooter(m_swervedriverController::getLeftTriggerAxis));
-
-//     m_swervedriverController
-//         .a()
-//         .and(m_swervedriverController.leftBumper())
-//         .whileTrue(m_shooter.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-//     m_swervedriverController
-//         .b()
-//         .and(m_swervedriverController.leftBumper())
-//         .whileTrue(m_shooter.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-//     m_swervedriverController
-//         .x()
-//         .and(m_swervedriverController.leftBumper())
-//         .whileTrue(m_shooter.sysIdDynamic(SysIdRoutine.Direction.kForward));
-//     m_swervedriverController
-//         .y()
-//         .and(m_swervedriverController.leftBumper())
-//         .whileTrue(m_shooter.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    m_DriverController.leftBumper().onTrue(m_intake.runIntake()).onFalse(m_intake.stopIntake());
+    m_DriverController.y().onTrue(m_shooter.runLoaderMotor());
+     m_DriverController.x().onTrue(m_shooter.stop());
+    m_DriverController.rightBumper().onTrue(m_shooter.runShooter());    
  }
 
   /**
