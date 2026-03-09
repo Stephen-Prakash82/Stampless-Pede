@@ -7,6 +7,8 @@ package frc.robot;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
+import swervelib.SwerveInputStream;
+
 //import frc.robot.subsystems.MotorTest;
 import java.io.File;
 
@@ -51,7 +53,13 @@ public class RobotContainer {
         configureBindings();
 
       }
-
+      SwerveInputStream driveAngularVelocity = SwerveInputStream.of(m_swervedrive.getSwerveDrive(),
+                                                                () -> m_DriverController.getLeftY() * -1,
+                                                                () -> m_DriverController.getLeftX() * -1)
+                                                            .withControllerRotationAxis(m_DriverController::getRightX)
+                                                            .deadband(OperatorConstants.DEADBAND)
+                                                            .scaleTranslation(0.8)
+                                                            .allianceRelativeControl(true);
   /**
    * Use this method to define bindings between conditions and commands. These are useful for
    * automating robot behaviors based on button and sensor input.
@@ -61,6 +69,9 @@ public class RobotContainer {
    * <p>Event binding methods are available on the {@link Trigger} class.
    */
   public void configureBindings() {
+    Command driveFieldOrientedAnglularVelocity = m_swervedrive.driveFieldOriented(driveAngularVelocity);
+      m_swervedrive.setDefaultCommand(driveFieldOrientedAnglularVelocity);
+
     // Control the drive with split-stick arcade controls
     // m_swervedrive.setDefaultCommand(
     //     m_swervedrive.arcadeDriveCommand(

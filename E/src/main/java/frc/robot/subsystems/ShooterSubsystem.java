@@ -16,21 +16,19 @@ public class ShooterSubsystem extends SubsystemBase {
 
     // Define your shooter motors and any necessary variables here
     private final SparkMax m_LoaderMotor = new SparkMax(ShooterConstants.kShooterLoaderMotorCanID, MotorType.kBrushless);
-    private final SparkClosedLoopController pidControllerLoader;
 
     final TalonFX m_RearMotor = new TalonFX(ShooterConstants.kShooterRearMotorCanID);
     final TalonFX m_FrontUpperMotor = new TalonFX(ShooterConstants.kShooterFrontUpperMotorCanID);
     final TalonFX m_FrontLowerMotor = new TalonFX(ShooterConstants.kShooterFrontLowerMotorCanID);
     public ShooterSubsystem() {
         // Initialize your shooter motors and any necessary components here
-        pidControllerLoader = m_LoaderMotor.getClosedLoopController();
     }
 
 
     
     public Command runLoaderMotor(){
         return runOnce(() -> {
-            pidControllerLoader.setReference(ShooterConstants.kLoaderSpeed, ControlType.kVelocity);
+            m_LoaderMotor.set(ShooterConstants.kLoaderDutyCycle);
             
             //System.out.println(this.getEncoderCount());
     });
@@ -39,7 +37,7 @@ public class ShooterSubsystem extends SubsystemBase {
     public Command stop(){
         return runOnce(() ->{
             m_LoaderMotor.stopMotor();
-
+            
         });
     }
 
