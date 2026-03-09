@@ -69,14 +69,17 @@ public class RobotContainer {
    *
    * <p>Event binding methods are available on the {@link Trigger} class.
    */
+      
   public void configureBindings() {
     Command driveFieldOrientedAnglularVelocity = m_swervedrive.driveFieldOriented(driveAngularVelocity);
       m_swervedrive.setDefaultCommand(driveFieldOrientedAnglularVelocity);
 
     m_DriverController.leftBumper().onTrue(m_intake.runIntake()).onFalse(m_intake.stopIntake());
     m_DriverController.y().onTrue(m_shooter.runLoaderMotor());
-     m_DriverController.x().onTrue(m_shooter.stop());
-    m_DriverController.rightBumper().onTrue(m_shooter.runShooter());    
+     m_DriverController.x().onTrue(m_shooter.runShooter());
+    m_DriverController.rightBumper().onTrue(m_shooter.stop());
+    m_DriverController.leftStick().onTrue(m_swervedrive.centerModulesCommand());    
+    m_DriverController.rightStick().onTrue(m_swervedrive.zeroGyroWithAllianceCommand());
  }
 
   /**

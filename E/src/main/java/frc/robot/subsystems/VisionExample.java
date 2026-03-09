@@ -1,19 +1,9 @@
-/*
-this is example code but I think we should
-re do it in the PhotonVision class instead of having a separate vision class. 
-*/
-
-
-
-
-
-
-
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Microseconds;
 import static edu.wpi.first.units.Units.Seconds;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
@@ -56,17 +46,16 @@ import swervelib.telemetry.SwerveDriveTelemetry;
  * Example PhotonVision class to aid in the pursuit of accurate odometry. Taken from
  * https://gitlab.com/ironclad_code/ironclad-2024/-/blob/master/src/main/java/frc/robot/vision/Vision.java?ref_type=heads
  */
-public class Vision
+public class VisionExample
 {
-  //CHECK THE TOP OF THIS FILE!!!!!
 
   /**
    * April Tag Field Layout of the year.
    */
   public static final AprilTagFieldLayout fieldLayout                     = AprilTagFieldLayout.loadField(
-      AprilTagFields.k2026RebuiltAndymark);
+      AprilTagFields.k2025ReefscapeAndyMark);
   /**
-   * Ambiguity defined as a value between (0,1). Used in {@link Vision#filterPose}.
+   * Ambiguity defined as a value between (0,1). Used in {@link VisionExample#filterPose}.
    */
   private final       double              maximumAmbiguity                = 0.25;
   /**
@@ -93,7 +82,7 @@ public class Vision
    * @param currentPose Current pose supplier, should reference {@link SwerveDrive#getPose()}
    * @param field       Current field, should be {@link SwerveDrive#field}
    */
-  public Vision(Supplier<Pose2d> currentPose, Field2d field)
+  public VisionExample(Supplier<Pose2d> currentPose, Field2d field)
   {
     this.currentPose = currentPose;
     this.field2d = field;
@@ -133,38 +122,39 @@ public class Vision
 
   }
 
-  /**
-   * Update the pose estimation inside of {@link SwerveDrive} with all of the given poses.
-   *
-   * @param swerveDrive {@link SwerveDrive} instance.
-   */
-  public void updatePoseEstimation(SwerveDrive swerveDrive)
-  {
-    if (SwerveDriveTelemetry.isSimulation && swerveDrive.getSimulationDriveTrainPose().isPresent())
-    {
-      /*
-       * In the maple-sim, odometry is simulated using encoder values, accounting for factors like skidding and drifting.
-       * As a result, the odometry may not always be 100% accurate.
-       * However, the vision system should be able to provide a reasonably accurate pose estimation, even when odometry is incorrect.
-       * (This is why teams implement vision system to correct odometry.)
-       * Therefore, we must ensure that the actual robot pose is provided in the simulator when updating the vision simulation during the simulation.
-       */
-      visionSim.update(swerveDrive.getSimulationDriveTrainPose().get());
-    }
-    for (Cameras camera : Cameras.values())
-    {
-      Optional<EstimatedRobotPose> poseEst = getEstimatedGlobalPose(camera);
-      if (poseEst.isPresent())
-      {
-        var pose = poseEst.get();
-        swerveDrive.addVisionMeasurement(pose.estimatedPose.toPose2d(),
-                                         pose.timestampSeconds,
-                                         camera.curStdDevs);
-      }
-    }
 
-  }
 
+    /**
+     * Update the pose estimation inside of {@link SwerveDrive} with all of the given poses.
+     *
+     * @param swerveDrive {@link SwerveDrive} instance.
+     */
+    public void updatePoseEstimation(SwerveDrive swerveDrive)
+    {
+        if (SwerveDriveTelemetry.isSimulation && swerveDrive.getSimulationDriveTrainPose().isPresent())
+        {
+            /*
+            * In the maple-sim, odometry is simulated using encoder values, accounting for factors like skidding and drifting.
+            * As a result, the odometry may not always be 100% accurate.
+            * However, the vision system should be able to provide a reasonably accurate pose estimation, even when odometry is incorrect.
+            * (This is why teams implement vision system to correct odometry.)
+            * Therefore, we must ensure that the actual robot pose is provided in the simulator when updating the vision simulation during the simulation.
+            */
+            visionSim.update(swerveDrive.getSimulationDriveTrainPose().get());
+        }
+        for (Cameras camera : Cameras.values())
+        {
+            camera.poseEstimator.addHeadingData(Timer.getFPGATimestamp(), swerveDrive.getPose().getRotation());
+            Optional<EstimatedRobotPose> poseEst = getEstimatedGlobalPose(camera);
+            if (poseEst.isPresent()) {
+                var pose = poseEst.get();
+                swerveDrive.addVisionMeasurement(pose.estimatedPose.toPose2d(),
+                        pose.timestampSeconds,
+                        camera.curStdDevs);
+            }
+            }
+        }
+        
   /**
    * Generates the estimated robot pose. Returns empty if:
    * <ul>
@@ -440,7 +430,7 @@ public class Vision
       // https://docs.wpilib.org/en/stable/docs/software/basic-programming/coordinate-system.html
       robotToCamTransform = new Transform3d(robotToCamTranslation, robotToCamRotation);
 
-      poseEstimator = new PhotonPoseEstimator(Vision.fieldLayout,
+      poseEstimator = new PhotonPoseEstimator(VisionExample.fieldLayout,
                                               PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
                                               robotToCamTransform);
       poseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
