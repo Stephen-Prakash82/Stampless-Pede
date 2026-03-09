@@ -42,8 +42,8 @@ public class RobotContainer {
 
 
       public RobotContainer(){
-        NamedCommands.registerCommand("shooterShoot", m_shooter.runLoaderMotor());
-        NamedCommands.registerCommand("shooterStop", m_shooter.stop());
+        // NamedCommands.registerCommand("shooterShoot", m_shooter.runLoaderMotor());
+        // NamedCommands.registerCommand("shooterStop", m_shooter.stop());
 
         // NamedCommands.registerCommand("testStart", m_motorTest.runTestMotor());
         // NamedCommands.registerCommand("testStop", m_motorTest.stopTestMotor());
@@ -70,17 +70,17 @@ public class RobotContainer {
     // once.
     // Using bumpers as a modifier and combining it with the buttons so that we can have both sets
     // of bindings at once
-    m_DriverController.a().whileTrue(m_swervedrive.sysIdAngleMotorCommand());
-    m_DriverController.b().whileTrue(m_swervedrive.sysIdDriveMotorCommand());
+    //m_DriverController.a().whileTrue(m_swervedrive.sysIdAngleMotorCommand());
+    //m_DriverController.b().whileTrue(m_swervedrive.sysIdDriveMotorCommand());
 
     // m_DriverController.povUp()
     //    .onTrue(m_motorTest.runTestMotor());
     //  m_DriverController.povUp()
     //    .onFalse(m_motorTest.stopTestMotor());
 
-    m_DriverController.rightTrigger()
-       .onTrue(m_shooter.runLoaderMotor());
-     m_DriverController.leftTrigger().onTrue(m_shooter.stop());
+    m_DriverController.y()
+       .onChange(m_shooter.runLoaderMotor());
+     m_DriverController.x().onChange(m_shooter.stop());
 
 
     // m_DriverController
