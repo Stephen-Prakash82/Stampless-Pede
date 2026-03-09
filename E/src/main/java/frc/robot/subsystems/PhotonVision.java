@@ -1,13 +1,17 @@
 package frc.robot.subsystems;
+import org.photonvision.PhotonCamera;
 
-public class PhotonVision {
-    PhotonCamera camera = new PhotonCamera("photonvision");// Change this to match the name of your camera
-    @Override
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+public class PhotonVision extends SubsystemBase {
+    PhotonCamera camera = new PhotonCamera("camera1");// Change this to match the name of your camera
+    //@Override
     public void teleopPeriodic() {
-        // Calculate drivetrain commands from Joystick values
-        double forward = -controller.getLeftY() * Constants.Swerve.kMaxLinearSpeed;
-        double strafe = -controller.getLeftX() * Constants.Swerve.kMaxLinearSpeed;
-        double turn = -controller.getRightX() * Constants.Swerve.kMaxAngularSpeed;
+    //     // Calculate drivetrain commands from Joystick values do not know why or how this exists in thier example code
+    //     double forward = -controller.getLeftY() * Constants.Swerve.kMaxLinearSpeed;
+    //     double strafe = -controller.getLeftX() * Constants.Swerve.kMaxLinearSpeed;
+    //     double turn = -controller.getRightX() * Constants.Swerve.kMaxAngularSpeed;
 
         // Read in relevant data from the Camera
         boolean targetVisible = false;
@@ -28,21 +32,10 @@ public class PhotonVision {
                 }
             }
         }
-
-        // Auto-align when requested
-        if (controller.getAButton() && targetVisible) {//need to change button
-            // Driver wants auto-alignment to tag ??
-            // And, tag ?? is in sight, so we can turn toward it.
-            // Override the driver's turn command with an automatic one that turns toward the tag.
-            while (true) {
-                turn = -1.0 * targetYaw * VISION_TURN_kP * Constants.Swerve.kMaxAngularSpeed;
-                //add code to turn bot constantly
-                if (controller.getAButton()) {//change button
-                    break
-                }
-            }
-        } else {
-            SmartDashboard.putBoolean("Is Target Found:", targetVisible)
-        }
+    }
+    public Command alignWithTag() {
+        return runOnce(()-> {
+            //add code to turn
+        });
     }
 }
