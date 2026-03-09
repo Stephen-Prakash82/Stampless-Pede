@@ -22,12 +22,13 @@ public final class Constants {
   //some of these must be manually added to physicalproperties.json.
   //we also need values for steering angular velocity and friction
   public static final double ROBOT_MASS = (148 - 20.3) * 0.453592; // 32lbs * kg per pound
-  public static final Matter CHASSIS    = new Matter(new Translation3d(26, 26, Units.inchesToMeters(8)), ROBOT_MASS);
+  public static final Matter CHASSIS    = new Matter(new Translation3d(Units.inchesToMeters(26), Units.inchesToMeters(26), Units.inchesToMeters(8)), ROBOT_MASS);
   public static final double LOOP_TIME  = 0.13; //s, 20ms + 110ms sprk max velocity lag
   public static final double MAX_SPEED  = Units.feetToMeters(4.8);
 
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
+    public static final double DEADBAND = 0.1;
   }
 
   public static class DriveConstants{
@@ -65,7 +66,7 @@ public final class Constants {
     public static final int kShooterFrontUpperMotorCanID = 11;
     public static final double kP = 1;
 
-    public static final int kLoaderSpeed = 3500;
+    public static final double kLoaderDutyCycle = 0.5; // Adjust as necessary
 
     }
 
