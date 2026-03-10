@@ -56,6 +56,7 @@ public class ShooterSubsystem extends SubsystemBase {
             m_LoaderMotor.stopMotor();
             m_DeployMotor.stopMotor();
             m_FrontUpperMotor.stopMotor();
+            m_FrontLowerMotor.stopMotor();
         });
     }
 
@@ -70,8 +71,8 @@ public class ShooterSubsystem extends SubsystemBase {
     public Command runShooter() {
         return runOnce(() -> {
             // Code to set shooter motors to the desired speed
-            runRearMotor(-0.1);
-            //runFrontMotors(.2);
+            //runRearMotor(-0.1);
+            runFrontMotors(.05);
         });
     }
 
