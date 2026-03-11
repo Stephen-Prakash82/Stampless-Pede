@@ -1,14 +1,9 @@
 package frc.robot.subsystems;
 
 
-import org.photonvision.*;
-import org.photonvision.common.*;
-import org.photonvision.targeting.*;
-import org.photonvision.targeting.MultiTargetPNPResult;
+
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
-import org.photonvision.targeting.TargetCorner;
-import org.photonvision.PhotonPoseEstimator.*;
 
 //From docs
 import edu.wpi.first.math.Matrix;
@@ -18,7 +13,6 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import java.util.List;
 import java.util.Optional;
 import org.photonvision.EstimatedRobotPose;
@@ -54,6 +48,8 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.MutAngle;
 
 public class PhotonVision extends SubsystemBase {
+
+    double targetYaw = 0.0;
 
     //Create the camera
     private final PhotonCamera camera = new PhotonCamera(VisionConstants.kCameraName);
@@ -137,17 +133,9 @@ public class PhotonVision extends SubsystemBase {
                         }
 
                     }
-
-                        
-
-
-                    
                 }
-                
-                          
             }    
         });
-
     }
 
     @Override
@@ -157,22 +145,7 @@ public class PhotonVision extends SubsystemBase {
         CommandScheduler.getInstance().schedule(getRobotFieldData());
 
         //Get the yaw every time the scheduler runs
-        double targetYaw = 0.0;
-        var results = camera.getAllUnreadResults();
-        if (!results.isEmpty()) {
-          // Camera processed a new frame since last
-          // Get the last one in the list.
-          var result = results.get(results.size() - 1);
-          if (result.hasTargets()) {
-              // At least one AprilTag was seen by the camera
-              for (var target : result.getTargets()) {
-                  if (target.getFiducialId() == -0) {// need to replace with tag we are looking for
-                      // Found Tag 0, record its information
-                      targetYaw = target.getYaw();
-                  }
-              }
-          }
-        }
+        
     }
 
     //Std Dev Calculation from Docs: https://github.com/PhotonVision/photonvision/blob/e8efef476b3b4681c8899a8720774d6dbd5ccf56/photonlib-java-examples/poseest/src/main/java/frc/robot/Robot.java

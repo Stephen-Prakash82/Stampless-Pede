@@ -43,7 +43,7 @@ public class ShooterSubsystem extends SubsystemBase {
         talons[1] = new DataEntry(m_FrontUpperMotor, "Front Upper Talon", 0);
         talons[2] = new DataEntry(m_FrontLowerMotor, "Front Lower Talon", 0);
         // The left motor is CCW+
-        currentConfigs.Inverted = InvertedValue.CounterClockwise_Positive;
+        currentConfigs.Inverted = InvertedValue.Clockwise_Positive;
         currentConfigs.NeutralMode = NeutralModeValue.Coast;
         m_FrontUpperMotor.getConfigurator().apply(currentConfigs);
         m_FrontLowerMotor.getConfigurator().apply(currentConfigs);
@@ -66,7 +66,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public Command runShooter() {
         return runOnce(() -> {
-            // runRearMotor();
+            runRearMotor();
             runFrontMotors();
             Timer.delay(.5);
             runLoaderMotor();

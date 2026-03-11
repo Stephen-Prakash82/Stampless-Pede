@@ -105,11 +105,23 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   // example aim at target command
-  public Command aimAtTarget() {
+  public Command aimAtTarget(Cameras camera) {
     return run(() -> {
-      // drive(getTargetSpeeds(0,
-      // 0,
-      // Rotation2d.fromDegrees(targetYaw))); // Not sure if this will work, more math
+      double targetYaw = 0;
+      Optional<PhotonPipelineResult> results = camera.getLatestResult();
+          var result = results.get();
+          if (result.hasTargets()) {
+              // At least one AprilTag was seen by the camera
+              for (var target : result.getTargets()) {
+                  if (target.getFiducialId() == -0) {// need to replace with tag we are looking for
+                      // Found Tag 0, record its information
+                      targetYaw = target.getYaw();
+                  }
+              }
+        }
+      drive(getTargetSpeeds(0,
+                            0,
+                            Rotation2d.fromDegrees(targetYaw))); // Not sure if this will work, more math
       // may be required.
 
     });
@@ -118,7 +130,6 @@ public class SwerveSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
   }
-
   @Override
   public void simulationPeriodic() {
   }
