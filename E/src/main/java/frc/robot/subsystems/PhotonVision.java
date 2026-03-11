@@ -103,7 +103,7 @@ public class PhotonVision extends SubsystemBase {
                                 // Change our trust in the measurement based on the tags we can see
                                 var estStdDevs = getEstimationStdDevs();
                                 var robotPose = est.estimatedPose.toPose2d();
-                                var poseTimestap = est.timestampSeconds;
+                                var poseTimestamp = est.timestampSeconds;
                                 
                             });
                      }
