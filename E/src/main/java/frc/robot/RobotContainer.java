@@ -27,7 +27,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-    private final SwerveSubsystem m_swervedrive = new SwerveSubsystem(
+    public final SwerveSubsystem m_swervedrive = new SwerveSubsystem(
   new File(Filesystem.getDeployDirectory(), "swerve"));
   private final ShooterSubsystem m_shooter = new ShooterSubsystem();
   private final IntakeArm m_intake = new IntakeArm();

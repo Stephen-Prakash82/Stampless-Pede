@@ -22,6 +22,10 @@ import org.photonvision.PhotonUtils;
 //Constants and Extras
 import frc.robot.Constants.VisionConstants;
 import frc.robot.Robot;
+import frc.robot.RobotContainer;
+import frc.robot.subsystems.SwerveSubsystem;
+import swervelib.SwerveDrive;
+import swervelib.telemetry.SwerveDriveTelemetry;
 import frc.robot.Constants.GameConstants;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -48,6 +52,8 @@ import edu.wpi.first.units.measure.MutAngle;
 
 public class Vision extends SubsystemBase {
 
+    SwerveSubsystem swerveDriveInstance = new SwerveSubsystem(null);
+    
     // Create the camera
     private final PhotonCamera camera = new PhotonCamera(VisionConstants.kCameraName);
 
@@ -109,6 +115,10 @@ public class Vision extends SubsystemBase {
                                     robotPose = est.estimatedPose.toPose2d();
                                     poseTimestamp = est.timestampSeconds;
 
+                                    swerveDriveInstance.swerveDrive.addVisionMeasurement(robotPose,
+                                            poseTimestamp,
+                                            estStdDevs);
+
                                 });
 
                         var targets = result.getTargets();
@@ -164,10 +174,7 @@ public class Vision extends SubsystemBase {
 
     @Override
     public void periodic() {
-        // Get the yaw that aligns the robot with an April Tag
-
-        // Get the robot's pose on the field and distance data every time the scheduler
-        // runs
+        // Get the robot's pose on the field and distance data every time the scheduler runs
         CommandScheduler.getInstance().schedule(getRobotFieldData());
     }
 
