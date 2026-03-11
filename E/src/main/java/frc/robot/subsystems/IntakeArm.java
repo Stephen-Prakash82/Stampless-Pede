@@ -53,7 +53,9 @@ public class IntakeArm extends SubsystemBase
             m_IntakeMotor.stopMotor();
         });
     }
-    public double getAngle() {
+    public double getAngle() 
+    {
+        m_DeployMotor.getPosition().refresh();
         double rawAngle = m_DeployMotor.getPosition().getValueAsDouble() * IntakeConstants.kArmDegreesPerRotation;
         return rawAngle;
     }
@@ -61,7 +63,8 @@ public class IntakeArm extends SubsystemBase
     public void periodic() {
         getAngle();
         SmartDashboard.putNumber("Intake Angle", getAngle());
-    // This method will be called once per scheduler run
+        SmartDashboard.putNumber("Intake RPM", m_IntakeMotor.getEncoder().getVelocity());
+    // This method will be called once per scheduler rn
     }
 
     @Override

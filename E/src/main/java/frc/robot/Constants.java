@@ -24,7 +24,7 @@ public final class Constants {
   public static final double ROBOT_MASS = (148 - 20.3) * 0.453592; // 32lbs * kg per pound
   public static final Matter CHASSIS    = new Matter(new Translation3d(Units.inchesToMeters(26), Units.inchesToMeters(26), Units.inchesToMeters(8)), ROBOT_MASS);
   public static final double LOOP_TIME  = 0.13; //s, 20ms + 110ms sprk max velocity lag
-  public static final double MAX_SPEED  = Units.feetToMeters(0);
+  public static final double MAX_SPEED  = Units.feetToMeters(5);
 
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
@@ -52,10 +52,10 @@ public final class Constants {
   public static class IntakeConstants{
     public static final int kDeployMotorCanID = 14;
     public static final int kIntakeMotorCanID = 15;
-    public static final double kArmDegreesPerRotation = 360.0; // Assuming 1 rotation equals 360 degrees, adjust if necessary
-    public static final double kIntakeSpeed = 0.3; // Adjust as necessary 
-    public static final double kDeployDutyCycle = 0.15; // Adjust as necessary
-    public static final double kRetractDutyCycle = -0.15; // Adjust as necessary
+    public static final double kArmDegreesPerRotation = 180.0; // Assuming 1 rotation equals 360 degrees, adjust if necessary
+    public static final double kIntakeSpeed = 0; // Adjust as necessary 
+    public static final double kDeployDutyCycle = 0.25; // Adjust as necessary
+    public static final double kRetractDutyCycle = -0.25; // Adjust as necessary
   }
 
   public static class ShooterConstants{

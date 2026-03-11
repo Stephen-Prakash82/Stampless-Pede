@@ -1,14 +1,17 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.ShooterConstants;
 
 
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+
+import java.lang.module.ModuleReader;
+
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.Follower;
@@ -17,6 +20,18 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+class DataEntry {
+    TalonFX motor;
+    String name;
+    double rpm;
+    
+    public DataEntry(TalonFX motor, String name, double rpm) {
+        this.motor = motor;
+        this.name = name;
+        this.rpm = rpm;
+    }
+
+}
 public class ShooterSubsystem extends SubsystemBase {
     //to do: everything
 
@@ -26,10 +41,13 @@ public class ShooterSubsystem extends SubsystemBase {
     final TalonFX m_RearMotor = new TalonFX(ShooterConstants.kShooterRearMotorCanID);
     final TalonFX m_FrontUpperMotor = new TalonFX(ShooterConstants.kShooterFrontUpperMotorCanID);
     final TalonFX m_FrontLowerMotor = new TalonFX(ShooterConstants.kShooterFrontLowerMotorCanID);
+    final DataEntry[] talons = new DataEntry[3];
     public ShooterSubsystem() {
         // Initialize your shooter motors and any necessary components here
         var currentConfigs = new MotorOutputConfigs();
-
+        talons[0] = new DataEntry(m_RearMotor, "Rear Talon",0);
+        talons[1] = new DataEntry(m_FrontUpperMotor, "Front Upper Talon",0);
+        talons[2] = new DataEntry(m_FrontLowerMotor, "Front Lower Talon",0);
       // The left motor is CCW+
       currentConfigs.Inverted = InvertedValue.CounterClockwise_Positive;
       currentConfigs.NeutralMode = NeutralModeValue.Coast;
@@ -51,7 +69,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
     public Command runShooter() {
         return runOnce(() -> {
-            runRearMotor();
+            //runRearMotor();
             runFrontMotors();
             Timer.delay(.5);
             runLoaderMotor();
@@ -65,8 +83,16 @@ public class ShooterSubsystem extends SubsystemBase {
             m_RearMotor.stopMotor();
         });
     }
- //   public static void 
-
-    // Define methods to control the shooter, such as setting speed, stopping, etc.
-    
+    @Override
+    public void periodic() 
+    {
+        
+        for (var i=0; i<talons.length; i++) {
+            talons[i].motor.getVelocity().refresh();
+            double rps = talons[i].motor.getVelocity().getValueAsDouble();
+            double rpm =rps*60;
+            SmartDashboard.putNumber(talons[i].name, rpm);
+        }
+        
+    }
 }
