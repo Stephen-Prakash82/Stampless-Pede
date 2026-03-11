@@ -75,6 +75,9 @@ public class PhotonVision extends SubsystemBase {
     public Pose2d tagPose;
     private Optional<Pose3d> tagPose3d;
 
+    //Initialize the target yaw variable
+    double targetYaw = 0.0;
+
     //Target we want to get the distance to, change this number when we find out
     int tagID = 0;
 
@@ -88,6 +91,7 @@ public class PhotonVision extends SubsystemBase {
 
             //Check if the latest result has April Tags
             if (!results.isEmpty()) {
+                
                 for (PhotonPipelineResult result : results) {
                     //Only if results have targets
                     if (result.hasTargets()) {
@@ -120,10 +124,10 @@ public class PhotonVision extends SubsystemBase {
                                 
                                 //Extract the Pose2d out of the Optional
                                 tagPose3d.ifPresent(
-                                    targ -> {
+                                    tag -> {
                                         
                                         //Turn the 3d pose into a 2d pose
-                                        tagPose = targ.toPose2d();
+                                        tagPose = tag.toPose2d();
 
                                     }
                                 );
@@ -146,29 +150,37 @@ public class PhotonVision extends SubsystemBase {
 
     }
 
+    public Command getRobotTagYaw() {
+        return run( () -> {
+            
+            //Get all unread results
+            List<PhotonPipelineResult> latestResults = camera.getAllUnreadResults();
+
+            //Check if the latest result has April Tags
+            if (!latestResults.isEmpty()) {
+                var latestResult = latestResults.get(latestResults.size() - 1);
+
+                //Get the yaw
+                if (latestResult.hasTargets()) {
+                // At least one AprilTag was seen by the camera
+                    for (var target : latestResult.getTargets()) {
+                        if (target.getFiducialId() == -0) {// need to replace with tag we are looking for
+                            // Found Tag 0, record its information
+                            targetYaw = target.getYaw();
+                        }
+                    }
+                }
+            }    
+        });
+    }    
+
     @Override
     public void periodic() {
-
+        //Get the yaw that aligns the robot with an April Tag
+        CommandScheduler.getInstance().schedule(getRobotTagYaw());
+        
         //Get the robot's pose on the field and distance data every time the scheduler runs
         CommandScheduler.getInstance().schedule(getRobotFieldData());
-
-        //Get the yaw every time the scheduler runs
-        double targetYaw = 0.0;
-        var results = camera.getAllUnreadResults();
-        if (!results.isEmpty()) {
-          // Camera processed a new frame since last
-          // Get the last one in the list.
-          var result = results.get(results.size() - 1);
-          if (result.hasTargets()) {
-              // At least one AprilTag was seen by the camera
-              for (var target : result.getTargets()) {
-                  if (target.getFiducialId() == -0) {// need to replace with tag we are looking for
-                      // Found Tag 0, record its information
-                      targetYaw = target.getYaw();
-                  }
-              }
-          }
-        }
     }
 
     //Std Dev Calculation from Docs: https://github.com/PhotonVision/photonvision/blob/e8efef476b3b4681c8899a8720774d6dbd5ccf56/photonlib-java-examples/poseest/src/main/java/frc/robot/Robot.java
