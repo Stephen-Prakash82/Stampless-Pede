@@ -52,6 +52,7 @@ import edu.wpi.first.units.measure.MutAngle;
 
 public class Vision extends SubsystemBase {
 
+    //Create an instance of SwerveSubsystem class in order to access swerveDrive (non-static variable)
     SwerveSubsystem swerveDriveInstance = new SwerveSubsystem(null);
     
     // Create the camera
