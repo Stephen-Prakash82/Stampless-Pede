@@ -62,16 +62,14 @@ public class PhotonVision extends SubsystemBase {
 
     //Create the camera
     private final PhotonCamera camera = new PhotonCamera(VisionConstants.kCameraName);
-
-    //Create a pose estimator
-    private final PhotonPoseEstimator photonEstimator = new PhotonPoseEstimator(GameConstants.kWeldedLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, VisionConstants.kRobotToCam);
     
     private Matrix<N3, N1> curStdDevs;
 
     //Initialize vision estimation variable
     Optional<EstimatedRobotPose> visionEst = Optional.empty();
 
-    private final EstimateConsumer estConsumer;    
+    //Initialize the vision estimation variable
+    Optional<EstimatedRobotPose> visionEst = Optional.empty();
 
     public Pose2d robotPose;
     public double poseTimestamp;
@@ -80,9 +78,6 @@ public class PhotonVision extends SubsystemBase {
     //Get the robot's pose on the field and distance data
     public Command getRobotFieldData() {
         return run(() -> {
-            
-            //Make a fallback if there aren't multiple tags
-            photonEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
 
             //Get all unread results
             List<PhotonPipelineResult> results = camera.getAllUnreadResults();
@@ -94,26 +89,29 @@ public class PhotonVision extends SubsystemBase {
                 boolean HasTargets = result.hasTargets();
                 
                 //Only if there are targets
-                if (HasTargets) {
-                    
-                    Optional<EstimatedRobotPose> visionEst = Optional.empty();
-                    for (var change : camera.getAllUnreadResults()) {
-                        visionEst = photonEstimator.update(change);
-                        updateEstimationStdDevs(visionEst, change.getTargets());
+                // if (HasTargets) {
+
+                //     visionEst = photonEstimator.estimateCoprocMultiTagPose(result);
+                //     if (visionEst.isEmpty()) {
+                //         visionEst = photonEstimator.estimateLowestAmbiguityPose(result);
+                //     }
+                //     for (var change : camera.getAllUnreadResults()) {
+                //         visionEst = photonEstimator.update(change);
+                //         updateEstimationStdDevs(visionEst, change.getTargets());
                         
-                        visionEst.ifPresent(
-                            est -> {
-                                // Change our trust in the measurement based on the tags we can see
-                                estStdDevs = getEstimationStdDevs();
-                                robotPose = est.estimatedPose.toPose2d();
-                                poseTimestamp = est.timestampSeconds;
+                //         visionEst.ifPresent(
+                //             est -> {
+                //                 // Change our trust in the measurement based on the tags we can see
+                //                 estStdDevs = getEstimationStdDevs();
+                //                 robotPose = est.estimatedPose.toPose2d();
+                //                 poseTimestamp = est.timestampSeconds;
                                 
                                 
-                            });
-                     }
+                //             });
+                //      }
                     
                     
-                }
+                // }
                 
 
             }
