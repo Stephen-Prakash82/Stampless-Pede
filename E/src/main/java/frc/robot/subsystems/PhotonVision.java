@@ -1,9 +1,11 @@
 package frc.robot.subsystems;
 
 
-
+import org.photonvision.targeting.MultiTargetPNPResult;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
+import org.photonvision.targeting.TargetCorner;
+
 
 //From docs
 import edu.wpi.first.math.Matrix;
@@ -49,8 +51,6 @@ import edu.wpi.first.units.measure.MutAngle;
 
 public class PhotonVision extends SubsystemBase {
 
-    double targetYaw = 0.0;
-
     //Create the camera
     private final PhotonCamera camera = new PhotonCamera(VisionConstants.kCameraName);
 
@@ -72,11 +72,11 @@ public class PhotonVision extends SubsystemBase {
 
     //Initialize the distance calculation variables
     public double distFromAprilTagInMeters;
-    public Pose2d targetPose;
-    private Optional<Pose3d> targetPose3d;
+    public Pose2d tagPose;
+    private Optional<Pose3d> tagPose3d;
 
     //Target we want to get the distance to, change this number when we find out
-    int TagID = 0;
+    int tagID = 0;
 
 
     //Get the robot's pose on the field and distance data
@@ -115,27 +115,35 @@ public class PhotonVision extends SubsystemBase {
                         var targets = result.getTargets();
 
                         for (var target : targets) {
-                            if (target.getFiducialId() == TagID) {
-                                targetPose3d = fieldLayout.getTagPose(target.getFiducialId());
+                            if (target.getFiducialId() == tagID) {
+                                tagPose3d = fieldLayout.getTagPose(target.getFiducialId());
                                 
                                 //Extract the Pose2d out of the Optional
-                                targetPose3d.ifPresent(
+                                tagPose3d.ifPresent(
                                     targ -> {
                                         
                                         //Turn the 3d pose into a 2d pose
-                                        targetPose = targ.toPose2d();
+                                        tagPose = targ.toPose2d();
 
                                     }
                                 );
 
-                                distFromAprilTagInMeters = PhotonUtils.getDistanceToPose(robotPose, targetPose);
+                                distFromAprilTagInMeters = PhotonUtils.getDistanceToPose(robotPose, tagPose);
                             }
                         }
 
                     }
+
+                        
+
+
+                    
                 }
+                
+                          
             }    
         });
+
     }
 
     @Override
@@ -145,7 +153,22 @@ public class PhotonVision extends SubsystemBase {
         CommandScheduler.getInstance().schedule(getRobotFieldData());
 
         //Get the yaw every time the scheduler runs
-        
+        double targetYaw = 0.0;
+        var results = camera.getAllUnreadResults();
+        if (!results.isEmpty()) {
+          // Camera processed a new frame since last
+          // Get the last one in the list.
+          var result = results.get(results.size() - 1);
+          if (result.hasTargets()) {
+              // At least one AprilTag was seen by the camera
+              for (var target : result.getTargets()) {
+                  if (target.getFiducialId() == -0) {// need to replace with tag we are looking for
+                      // Found Tag 0, record its information
+                      targetYaw = target.getYaw();
+                  }
+              }
+          }
+        }
     }
 
     //Std Dev Calculation from Docs: https://github.com/PhotonVision/photonvision/blob/e8efef476b3b4681c8899a8720774d6dbd5ccf56/photonlib-java-examples/poseest/src/main/java/frc/robot/Robot.java
