@@ -36,15 +36,17 @@ public final class Constants {
   public static final Matter CHASSIS = new Matter(
       new Translation3d(Units.inchesToMeters(26), Units.inchesToMeters(26), Units.inchesToMeters(8)), ROBOT_MASS);
   public static final double LOOP_TIME = 0.13; // s, 20ms + 110ms sprk max velocity lag
-  public static final double MAX_SPEED = Units.feetToMeters(5);
+  public static double MAX_SPEED = Units.feetToMeters(5);
 
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
     public static final double DEADBAND = 0.1;
+    
   }
 
   public static class DriveConstants {
     // Swerve CanIDs
+    public static final double MAX_SPEED = Units.feetToMeters(5);
     public static final int kFrontLeftDrivingCanID = 3;
     public static final int kFrontRightDrivingCanID = 5;
     public static final int kRearRightDrivingCanID = 7;
@@ -79,6 +81,7 @@ public final class Constants {
     public static final double kLoaderDutyCycle = 1; // Adjust as necessary
     public static final double kFrontMotorsDutyCycle = 0.8; // Adjust as necessary
     public static final double kRearMotorDutyCycle = 0.8; // Adjust as necessary
+    
   }
 
   public static class VisionConstants {

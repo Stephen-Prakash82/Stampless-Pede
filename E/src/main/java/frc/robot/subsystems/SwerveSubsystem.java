@@ -21,7 +21,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
-import frc.robot.subsystems.Vision;
+//import frc.robot.subsystems.Vision;
+import frc.robot.Constants.DriveConstants;
 
 import java.io.File;
 import java.util.Arrays;
@@ -44,14 +45,14 @@ public class SwerveSubsystem extends SubsystemBase {
    * Swerve drive object.
    */
   public final SwerveDrive swerveDrive;
-  private final Vision vision = new Vision();
+  //private final Vision vision = new Vision();
 
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
    *
    * @param directory Directory of swerve drive config files.
    */
-
+  
   public SwerveSubsystem(File directory) {
     boolean blueAlliance = DriverStation.getAlliance().isPresent()
         && DriverStation.getAlliance().get() == Alliance.Blue;
@@ -105,13 +106,13 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   // example aim at target command
-  public Command aimAtTarget() {
-    return run(() -> {
-      drive(getTargetSpeeds(0,
-          0,
-          Rotation2d.fromDegrees(vision.getTargetTagYaw())));
-    });
-  }
+  // public Command aimAtTarget() {
+  //   return run(() -> {
+  //     drive(getTargetSpeeds(0,
+  //         0,
+  //         Rotation2d.fromDegrees(vision.getTargetTagYaw())));
+  //   });
+  // }
 
 
   @Override

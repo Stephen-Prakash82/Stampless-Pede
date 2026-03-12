@@ -36,7 +36,6 @@ public class ShooterSubsystem extends SubsystemBase {
     final TalonFX m_FrontUpperMotor = new TalonFX(ShooterConstants.kShooterFrontUpperMotorCanID);
     final TalonFX m_FrontLowerMotor = new TalonFX(ShooterConstants.kShooterFrontLowerMotorCanID);
     final DataEntry[] talons = new DataEntry[3];
-
     public ShooterSubsystem() {
         // Initialize your shooter motors and any necessary components here
         var currentConfigs = new MotorOutputConfigs();
@@ -69,7 +68,7 @@ public class ShooterSubsystem extends SubsystemBase {
         return runOnce(() -> {
             runRearMotor();
             runFrontMotors();
-            Timer.delay(.3);
+            Timer.delay(.1);
             runLoaderMotor();
         });
     }
