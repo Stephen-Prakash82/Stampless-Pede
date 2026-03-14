@@ -68,8 +68,8 @@ public final class Constants {
     public static final double kArmDegreesPerRotation = 180.0; // Assuming 1 rotation equals 360 degrees, adjust if //
                                                                // necessary
     public static final double kIntakeSpeed = 1; // Adjust as necessary
-    public static final double kDeployDutyCycle = 0.20; // Adjust as necessary
-    public static final double kRetractDutyCycle = -0.25; // Adjust as necessary
+    public static final double kDeployDutyCycle = 0.40; // Adjust as necessary
+    public static final double kRetractDutyCycle = -0.35; // Adjust as necessary
   }
 
   public static class ShooterConstants {

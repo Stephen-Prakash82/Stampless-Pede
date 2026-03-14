@@ -57,19 +57,22 @@ public class IntakeArm extends SubsystemBase {
 
     public double getAngle() {
         m_DeployMotor.getPosition().refresh();
-        double rawAngle = (m_DeployMotor.getPosition().getValueAsDouble() * IntakeConstants.kArmDegreesPerRotation)-95 /*95 degree intake offset */;
-        SmartDashboard.putNumber("Intake Angle", getAngle());
-        SmartDashboard.putNumber("Intake RPM", m_IntakeMotor.getEncoder().getVelocity());
+        double rawAngle = m_DeployMotor.getPosition().getValueAsDouble() * IntakeConstants.kArmDegreesPerRotation /*95 degree intake offset */;
+        
         return rawAngle;
     }
 
     @Override
     public void periodic() {
         getAngle();
+        SmartDashboard.putNumber("Intake Angle", getAngle());
+        SmartDashboard.putNumber("Intake RPM", m_IntakeMotor.getEncoder().getVelocity());
     }
 
     @Override
     public void simulationPeriodic() {
         getAngle(); // Update the angle measurement in simulation
+        SmartDashboard.putNumber("Intake Angle", getAngle());
+        SmartDashboard.putNumber("Intake RPM", m_IntakeMotor.getEncoder().getVelocity());
     }
 }
