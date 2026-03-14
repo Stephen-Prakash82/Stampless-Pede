@@ -48,7 +48,11 @@ public class IntakeArm extends SubsystemBase {
             m_IntakeMotor.set(IntakeConstants.kIntakeSpeed);
         });
     }
-
+    public Command runIntakeReverse() {
+        return runOnce(() -> {
+            m_IntakeMotor.set(-.75);
+        });
+    }
     public Command stopIntake() {
         return runOnce(() -> {
             m_IntakeMotor.stopMotor();

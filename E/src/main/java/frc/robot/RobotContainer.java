@@ -63,7 +63,7 @@ public class RobotContainer {
 
     m_DriverController.leftBumper().onTrue(m_intake.retractIntake()).onFalse(m_intake.stopDeployMotor());
     m_DriverController.rightBumper().onTrue(m_intake.deployIntake()).onFalse(m_intake.stopDeployMotor());
-    m_DriverController.rightTrigger().onTrue(m_shooter.runShooter()).onFalse(m_shooter.stop());
+    m_DriverController.rightTrigger().onTrue(m_shooter.runShooter()).onTrue(m_intake.runIntakeReverse()).onFalse(m_shooter.stop()).onFalse(m_intake.stopIntake());
     m_DriverController.leftTrigger().onTrue(m_intake.runIntake()).onFalse(m_intake.stopIntake());
     //m_DriverController.a().toggleOnTrue(m_swervedrive.aimAtTarget());
     m_DriverController.b().onTrue(m_swervedrive.centerModulesCommand())
