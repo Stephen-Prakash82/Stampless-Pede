@@ -4,18 +4,19 @@
 
 package frc.robot;
 
-import frc.robot.Constants.OperatorConstants;
-import frc.robot.subsystems.ShooterSubsystem;
-import frc.robot.subsystems.SwerveSubsystem;
-import swervelib.SwerveInputStream;
 import java.io.File;
 
+import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.wpilibj.Filesystem;
-import frc.robot.subsystems.IntakeArm;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Constants.OperatorConstants;
+import frc.robot.subsystems.IntakeArm;
+import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.SwerveSubsystem;
+import swervelib.SwerveInputStream;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -34,6 +35,14 @@ public class RobotContainer {
   CommandXboxController m_DriverController = new CommandXboxController(OperatorConstants.kDriverControllerPort);
 
   public RobotContainer() {
+    
+    NamedCommands.registerCommand("deployIntake", m_intake.deployIntake());
+    NamedCommands.registerCommand("shoot", m_shooter.runShooter());
+    NamedCommands.registerCommand("runIntake", m_intake.runIntake());
+    NamedCommands.registerCommand("stopIntake", m_intake.stopIntake());
+    
+    
+    
     configureBindings();
   }
 
