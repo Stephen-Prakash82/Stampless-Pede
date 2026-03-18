@@ -78,7 +78,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
     private static Optional<Pose3d> tagPose3d;
             
     // Initialize the target yaw variable
-    public static double targetYaw = 0.0;
+    public static Rotation2d targetYaw = Rotation2d.kZero;
     // Target we want to get the distance to, change this number when we find out
     
 
@@ -150,17 +150,17 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
     }
 
-    public static double getTagDistance() {
-        distFromAprilTagInMeters = PhotonUtils.getDistanceToPose(robotPose, tagPose);
+    public static double getTagDistance(int tagID) {
+        distFromAprilTagInMeters = PhotonUtils.getDistanceToPose(robotPose, getTagPose(tagID));
 
         return distFromAprilTagInMeters;
     }
 
-    public static double getTargetTagYaw() {
+    public static Rotation2d getTargetTagYaw(int tagID) {
 
         // Get all unread results
         List<PhotonPipelineResult> latestResults = camera.getAllUnreadResults();
-        double targetYaw = 0;
+        double targetIntYaw = 0;
         // Check if the latest result has April Tags
         if (!latestResults.isEmpty()) {
             var latestResult = latestResults.get(latestResults.size() - 1);
@@ -169,14 +169,20 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
             if (latestResult.hasTargets()) {
                 // At least one AprilTag was seen by the camera
                 for (var target : latestResult.getTargets()) {
-                    if (target.getFiducialId() == -0) {// need to replace with tag we are looking for
+                    if (target.getFiducialId() == tagID) {// need to replace with tag we are looking for
                         // Found Tag 0, record its information
-                        targetYaw = target.getYaw();
+                        targetIntYaw = target.getYaw();
+                        targetYaw = Rotation2d.fromRadians(targetIntYaw);
+
                     }
                 }
             }
         }
         return targetYaw;
+    }
+
+    public static Translation2d robotToPoint(double distanceToPoint, Rotation2d yawToPoint) {
+        return PhotonUtils.estimateCameraToTargetTranslation(distanceToPoint, yawToPoint);
     }
 
     // Std Dev Calculation from Docs:

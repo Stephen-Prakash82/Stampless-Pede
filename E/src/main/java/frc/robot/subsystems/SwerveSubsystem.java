@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Meter;
 
+import java.lang.Math;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -20,6 +21,8 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
+import frc.robot.Constants.OperatorConstants;
+
 import java.io.File;
 import java.util.Arrays;
 import java.util.function.DoubleSupplier;
@@ -43,6 +46,8 @@ public class SwerveSubsystem extends SubsystemBase
    */
   private final SwerveDrive swerveDrive;
   public static int targetTagID;
+  public static double optimalShootingRadius;
+  public static boolean distLock = false;
 
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
@@ -108,14 +113,26 @@ public class SwerveSubsystem extends SubsystemBase
     });
   }
 
-  //Lock our distance to a certain value for shooting
-  public Command distLock() {
+  //Move the bot to a specific distance away from an april tag
+  public Command moveRobotToDistance(double distance) {
     return run(() -> {
 
-      Vision.getTagPose(targetTagID);
-      Vision.getTagDistance();
+      //Get the current distance from the tag
+      Rotation2d yawOfTag = Vision.getTargetTagYaw(targetTagID);
+      Pose2d poseTag = Vision.getTagPose(targetTagID);
+      double tagCurrentDistance = Vision.getTagDistance(targetTagID);
 
-      //to-do: auto-distance code
+      //auto-align to an april tag
+      CommandScheduler.getInstance().schedule(aimAtTarget());
+
+      //get the distance of the point on the circle closest to the robot
+      double distRobotToCircle = tagCurrentDistance - distance;
+
+      //get a translation from the robot to the point
+      Translation2d robotToPointTranslation = Vision.robotToPoint(distRobotToCircle, yawOfTag);
+
+      //Move the robot by this translation
+      drive(robotToPointTranslation, 0, false);
 
     });
   }
@@ -123,9 +140,11 @@ public class SwerveSubsystem extends SubsystemBase
   public Command aimAtTarget() {
     return run(() -> {
       
-      Vision.getTargetTagYaw();
+      Rotation2d yawToTurn = Vision.getTargetTagYaw(targetTagID);
 
-      //to-do: Add drivetrin commands to make robot actually align
+      //should work but something might be wrong
+      var rotationVelocity = getTargetSpeeds(0.0, 0.0, yawToTurn);
+      driveFieldOriented(rotationVelocity);
 
     });
   }
