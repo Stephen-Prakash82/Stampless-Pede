@@ -15,13 +15,15 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class DistanceLock extends Command {
     /** Creates a new DistanceLock. */
+    
     private final SwerveSubsystem swerve;
     private final Vision vision;
     private final CommandXboxController controller;
     private double currentDistance;
+    
     private final int[]  targetTagIDs;
-    public DistanceLock(SwerveSubsystem swervesystem, Vision visionsystem, CommandXboxController DriveController, int[] targetTagIDsArg) {
-        swerve = swervesystem;
+    public DistanceLock(SwerveSubsystem swerveSubsystem, Vision visionsystem, CommandXboxController DriveController, int[] targetTagIDsArg) {
+        swerve = swerveSubsystem;
         vision = visionsystem;
         controller = DriveController;
         targetTagIDs = targetTagIDsArg;  
@@ -31,7 +33,7 @@ public class DistanceLock extends Command {
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
-        // move bot to correct position!
+        // find distance from bot to tag
         currentDistance = Vision.getTagDistance(targetTagIDs[0]);
     }
 

@@ -17,28 +17,38 @@ import edu.wpi.first.math.geometry.Translation2d;
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class moveRobotToDistance extends Command {
     /** Creates a new DistanceLock. */
-    public final SwerveSubsystem swerve;
-    public final Vision vision;
-    public final double distance;
-    public int targetTagID;
+    private final SwerveSubsystem swerve;
+    private final Vision vision;
+    private double[] radii;
+    private int[] targetTagIDs;
+    private int closestRadius = 0;
     
-    public moveRobotToDistance(SwerveSubsystem swervesystem, Vision visionsystem, double distanceArg, int targetTagIDArg) {
+    public moveRobotToDistance(SwerveSubsystem swervesystem, Vision visionsystem, int[] targetTagIDArgs, double[] radiiArgs) {
         swerve = swervesystem;
         vision = visionsystem;
-        distance = distanceArg;
-        targetTagID = targetTagIDArg;
+        targetTagIDs = targetTagIDArgs;
+        radii = radiiArgs;
         addRequirements(swerve, vision);
     }
 
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
-     //Get the current distance from the tag
-     Rotation2d yawOfTag = Vision.getTargetTagYaw(targetTagID);
-     double tagCurrentDistance = Vision.getTagDistance(targetTagID);
+
+    //Get the current distance from the tag
+    Rotation2d yawOfTag = Vision.getTargetTagYaw(targetTagIDs[0]);
+    double tagCurrentDistance = Vision.getTagDistance(targetTagIDs[0]);
+    
+    //figure out which radius is closest to the bot
+    for (int i = 0; i < radii.length; i++) {
+        double radius = radii[i];
+        if(Math.abs(radius - tagCurrentDistance) < radii[closestRadius]){
+            closestRadius = i;
+        }
+    }
 
      //get the distance of the point on the circle closest to the robot
-     double distRobotToCircle = tagCurrentDistance - distance;
+     double distRobotToCircle = tagCurrentDistance - radii[closestRadius];
 
      //get a translation from the robot to the point
      Translation2d robotToPointTranslation = Vision.robotToPoint(distRobotToCircle, yawOfTag);

@@ -18,8 +18,7 @@ import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.Vision;
 import swervelib.SwerveInputStream;
-import frc.robot.commands.AimLock;
-import frc.robot.commands.DistanceLock;
+import frc.robot.commands.*;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 /**
@@ -32,17 +31,18 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-  boolean blueAlliance = DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Blue;
-  public final int[] ktargetTagIDs = blueAlliance? new int[]{25,26} : new int[]{9,10};
-  public final SwerveSubsystem m_swervedrive = new SwerveSubsystem(
-      new File(Filesystem.getDeployDirectory(), "swerve"));
+  private final boolean blueAlliance = DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Blue;
+  private final int[] ktargetTagIDs = blueAlliance? new int[]{25,26} : new int[]{9,10};
+  private final SwerveSubsystem m_swervedrive = new SwerveSubsystem(
+      new File(Filesystem.getDeployDirectory(), "swerve"), blueAlliance);
   private final ShooterSubsystem m_shooter = new ShooterSubsystem();
   private final IntakeArm m_intake = new IntakeArm();
   private final Vision m_vision = new Vision();
   CommandXboxController m_DriverController = new CommandXboxController(OperatorConstants.kDriverControllerPort);
   private final AimLock c_AimLock = new AimLock(m_swervedrive, m_vision, ktargetTagIDs);
   private final DistanceLock c_DistLock = new DistanceLock(m_swervedrive, m_vision, m_DriverController, ktargetTagIDs);
-
+  private final moveRobotToDistance c_MoveToDistance = new moveRobotToDistance(m_swervedrive, m_vision, ktargetTagIDs, OperatorConstants.kradii);
+  private final AutoAlign c_AutoAlign = new AutoAlign(c_AimLock, c_DistLock, c_MoveToDistance);
   public RobotContainer() {
 
     NamedCommands.registerCommand("deployIntake", m_intake.deployIntake());
