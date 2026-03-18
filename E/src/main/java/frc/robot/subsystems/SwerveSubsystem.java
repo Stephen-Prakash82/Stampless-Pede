@@ -37,7 +37,7 @@ import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
 import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 
-import frc.robot.subsystems.Vision;
+
 
 public class SwerveSubsystem extends SubsystemBase
 {
@@ -45,10 +45,6 @@ public class SwerveSubsystem extends SubsystemBase
    * Swerve drive object.
    */
   private final SwerveDrive swerveDrive;
-  public static int targetTagID;
-  public static double optimalShootingRadius;
-  public static boolean distLock = false;
-
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
    *
@@ -109,41 +105,6 @@ public class SwerveSubsystem extends SubsystemBase
 
       Vision.getVisionPose();
       sendVisionToDrivetrain();
-
-    });
-  }
-
-  //Move the bot to a specific distance away from an april tag
-  public Command moveRobotToDistance(double distance) {
-    return run(() -> {
-
-      //Get the current distance from the tag
-      Rotation2d yawOfTag = Vision.getTargetTagYaw(targetTagID);
-      double tagCurrentDistance = Vision.getTagDistance(targetTagID);
-
-      //auto-align to an april tag
-      CommandScheduler.getInstance().schedule(aimAtTarget());
-
-      //get the distance of the point on the circle closest to the robot
-      double distRobotToCircle = tagCurrentDistance - distance;
-
-      //get a translation from the robot to the point
-      Translation2d robotToPointTranslation = Vision.robotToPoint(distRobotToCircle, yawOfTag);
-
-      //Move the robot by this translation
-      drive(robotToPointTranslation, 0, false);
-
-    });
-  }
-
-  public Command aimAtTarget() {
-    return run(() -> {
-      
-      Rotation2d yawToTurn = Vision.getTargetTagYaw(targetTagID);
-
-      //should work but something might be wrong
-      var rotationVelocity = getTargetSpeeds(0.0, 0.0, yawToTurn);
-      driveFieldOriented(rotationVelocity);
 
     });
   }
@@ -256,7 +217,7 @@ public class SwerveSubsystem extends SubsystemBase
       // Make the robot move
       swerveDrive.drive(SwerveMath.scaleTranslation(new Translation2d(
                             translationX.getAsDouble() * swerveDrive.getMaximumChassisVelocity(),
-                            translationY.getAsDouble() * swerveDrive.getMaximumChassisVelocity()), 0.8),
+                            translationY.getAsDouble() * swerveDrive.getMaximumChassisVelocity()), OperatorConstants.kscale),
                         Math.pow(angularRotationX.getAsDouble(), 3) * 0.4 * swerveDrive.getMaximumChassisAngularVelocity(),
                         true,
                         false);
@@ -279,7 +240,7 @@ public class SwerveSubsystem extends SubsystemBase
     return run(() -> {
 
       Translation2d scaledInputs = SwerveMath.scaleTranslation(new Translation2d(translationX.getAsDouble(),
-                                                                                 translationY.getAsDouble()), 0.8);
+                                                                                 translationY.getAsDouble()), OperatorConstants.kscale);
 
       // Make the robot move
       driveFieldOriented(swerveDrive.swerveController.getTargetSpeeds(scaledInputs.getX(), scaledInputs.getY(),

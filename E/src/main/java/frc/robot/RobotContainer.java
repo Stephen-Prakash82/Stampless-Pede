@@ -10,16 +10,18 @@ import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.IntakeArm;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
+import frc.robot.subsystems.Vision;
 import swervelib.SwerveInputStream;
-
+import frc.robot.commands.AimLock;
+import frc.robot.commands.DistanceLock;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 /**
  * This class is where the bulk of the robot should be declared. Since
  * Command-based is a
@@ -29,64 +31,37 @@ import swervelib.SwerveInputStream;
  * the robot (including
  * subsystems, commands, and button mappings) should be declared here.
  */
-public class RobotContainer extends SubsystemBase{
-    public final SwerveSubsystem m_swervedrive = new SwerveSubsystem(
-  new File(Filesystem.getDeployDirectory(), "swerve"));
+public class RobotContainer {
+  boolean blueAlliance = DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Blue;
+  public final int[] ktargetTagIDs = blueAlliance? new int[]{25,26} : new int[]{9,10};
+  public final SwerveSubsystem m_swervedrive = new SwerveSubsystem(
+      new File(Filesystem.getDeployDirectory(), "swerve"));
   private final ShooterSubsystem m_shooter = new ShooterSubsystem();
   private final IntakeArm m_intake = new IntakeArm();
+  private final Vision m_vision = new Vision();
   CommandXboxController m_DriverController = new CommandXboxController(OperatorConstants.kDriverControllerPort);
+  private final AimLock c_AimLock = new AimLock(m_swervedrive, m_vision, ktargetTagIDs);
+  private final DistanceLock c_DistLock = new DistanceLock(m_swervedrive, m_vision, m_DriverController, ktargetTagIDs);
 
   public RobotContainer() {
-    
+
     NamedCommands.registerCommand("deployIntake", m_intake.deployIntake());
     NamedCommands.registerCommand("shoot", m_shooter.runShooter());
     NamedCommands.registerCommand("runIntake", m_intake.runIntake());
     NamedCommands.registerCommand("stopIntake", m_intake.stopIntake());
-    NamedCommands.registerCommand("aimAtTarget", m_swervedrive.aimAtTarget());
-    
-    
+    NamedCommands.registerCommand("AimLock", c_AimLock);
+    NamedCommands.registerCommand("DistanceLock", c_DistLock);
+
     configureBindings();
   }
-
-  public void distanceLock() {
-    if (SwerveSubsystem.distLock == false) {
-      CommandScheduler.getInstance().schedule(m_swervedrive.moveRobotToDistance(SwerveSubsystem.optimalShootingRadius));
-      SwerveSubsystem.distLock = true;
-    }
-
-    else if (SwerveSubsystem.distLock == true) {
-      distLockAngularVelocity = SwerveInputStream.of(m_swervedrive.getSwerveDrive(),
-        () -> -1 * Math.sqrt(SwerveSubsystem.optimalShootingRadius*SwerveSubsystem.optimalShootingRadius - m_DriverController.getLeftX()* 0.8 *m_DriverController.getLeftX() * 0.8),
-        () -> m_DriverController.getLeftX() * -1 * 0.8)
-        .deadband(OperatorConstants.DEADBAND)
-        .allianceRelativeControl(true);
-    }
-  }
-
-  public Command driveDistLock() {
-    return run(() -> {
-      distanceLock();
-      m_swervedrive.driveFieldOriented(distLockAngularVelocity);
-    });
-  }
-
-
-  SwerveInputStream distLockAngularVelocity;
 
   SwerveInputStream driveAngularVelocity = SwerveInputStream.of(m_swervedrive.getSwerveDrive(),
       () -> m_DriverController.getLeftY() * -1,
       () -> m_DriverController.getLeftX() * -1)
       .withControllerRotationAxis(m_DriverController::getRightX)
       .deadband(OperatorConstants.DEADBAND)
-      .scaleTranslation(0.8)
+      .scaleTranslation(OperatorConstants.kscale)
       .allianceRelativeControl(true);
-
-  private final Command driveFieldOrientedAngularVelocity(SwerveInputStream driveVelocity) {
-    return run(() -> {
-      SwerveSubsystem.distLock = false;
-      CommandScheduler.getInstance().schedule(m_swervedrive.driveFieldOriented(driveVelocity));
-    });
-  }
 
   /**
    * Use this method to define bindings between conditions and commands. These are
@@ -101,22 +76,23 @@ public class RobotContainer extends SubsystemBase{
    */
 
   public void configureBindings() {
-    Command driveFieldOrientedAnglularVelocity = driveFieldOrientedAngularVelocity(driveAngularVelocity);
-    m_swervedrive.setDefaultCommand(driveFieldOrientedAnglularVelocity);
+    Command driveFieldOrientedAngularVelocity = m_swervedrive.driveFieldOriented(driveAngularVelocity);
+    m_swervedrive.setDefaultCommand(driveFieldOrientedAngularVelocity);
 
     m_DriverController.leftBumper().onTrue(m_intake.retractIntake()).onFalse(m_intake.stopDeployMotor());
     m_DriverController.rightBumper().onTrue(m_intake.deployIntake()).onFalse(m_intake.stopDeployMotor());
-    m_DriverController.rightTrigger().onTrue(m_shooter.runShooter()).onTrue(m_intake.runIntakeReverse()).onFalse(m_shooter.stop()).onFalse(m_intake.stopIntake());
+    m_DriverController.rightTrigger().onTrue(m_shooter.runShooter()).onTrue(m_intake.runIntakeReverse())
+        .onFalse(m_shooter.stop()).onFalse(m_intake.stopIntake());
     m_DriverController.leftTrigger().onTrue(m_intake.runIntake()).onFalse(m_intake.stopIntake());
-    m_DriverController.a().toggleOnTrue(m_swervedrive.aimAtTarget());
+    m_DriverController.a().toggleOnTrue(c_AimLock);
     m_DriverController.b().onTrue(m_swervedrive.centerModulesCommand())
-        .onFalse(driveFieldOrientedAnglularVelocity);
+        .onFalse(driveFieldOrientedAngularVelocity);
     m_DriverController.rightStick().onTrue(m_swervedrive.zeroGyroWithAllianceCommand())
-        .onFalse(driveFieldOrientedAnglularVelocity);
-    m_DriverController.x().toggleOnTrue(driveDistLock())
-        .onFalse(driveFieldOrientedAnglularVelocity);
+        .onFalse(driveFieldOrientedAngularVelocity);
+    m_DriverController.x().toggleOnTrue(c_DistLock)
+        .onFalse(driveFieldOrientedAngularVelocity);
 
-  } 
+  }
 
   /**
    * Use this to define the command that runs during autonomous.

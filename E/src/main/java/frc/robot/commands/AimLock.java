@@ -5,14 +5,22 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants;
+import frc.robot.subsystems.SwerveSubsystem;
+import frc.robot.subsystems.Vision;
+import edu.wpi.first.math.geometry.Rotation2d;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-public class AutoAlign extends Command {
-  /** Creates a new AutoAlign. */
-  public AutoAlign() {
-    // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements();
+public class AimLock extends Command {
+  /** Creates a new AimLock. */
+  public final SwerveSubsystem swerve;
+  public final Vision vision;
+  public static int[] targetTagIDs;
+
+  public AimLock(SwerveSubsystem swervesystem, Vision visionsystem, int[] targetTagIDsArg) {
+    swerve = swervesystem;
+    vision = visionsystem;
+    targetTagIDs = targetTagIDsArg;
+    addRequirements(swerve, vision);
   }
 
   // Called when the command is initially scheduled.
@@ -24,6 +32,10 @@ public class AutoAlign extends Command {
   @Override
   public void execute() {
     // add code to turn bot constantly
+    Rotation2d yawToTurn = Vision.getTargetTagYaw(targetTagIDs[0]);
+
+    var rotationVelocity = swerve.getTargetSpeeds(0.0, 0.0, yawToTurn);
+    swerve.driveFieldOriented(rotationVelocity);
   }
 
   // Called once the command ends or is interrupted.
