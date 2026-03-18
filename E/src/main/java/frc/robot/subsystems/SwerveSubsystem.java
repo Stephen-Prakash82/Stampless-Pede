@@ -119,7 +119,6 @@ public class SwerveSubsystem extends SubsystemBase
 
       //Get the current distance from the tag
       Rotation2d yawOfTag = Vision.getTargetTagYaw(targetTagID);
-      Pose2d poseTag = Vision.getTagPose(targetTagID);
       double tagCurrentDistance = Vision.getTagDistance(targetTagID);
 
       //auto-align to an april tag
