@@ -43,7 +43,8 @@ public final class Constants {
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
     public static final double DEADBAND = 0.1;
-    
+    public static final double kscale = 0.8; 
+    public static final double[] kradii = {1,2,3}; 
   }
 
   public static class DriveConstants {
@@ -58,6 +59,7 @@ public final class Constants {
     public static final int kRearRightTurningCanID = 6;
     public static final int kRearLeftTurningCanID = 8;
 
+    
   }
 
   // CanIDs that are negative need to be adjusted once bot is wired
@@ -93,6 +95,9 @@ public final class Constants {
         new Rotation3d(Units.degreesToRadians(86), 0, 0));
     public static final Matrix<N3, N1> kSingleTagStdDevs = VecBuilder.fill(4, 4, 8);
     public static final Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(0.5, 0.5, 1);
+
+    public static final double kDistanceArg = -1; //TBD through testing
+    public static final double kDistanceFromTarget = -1; //TBD through testing, make it a function and move it elsewhere
   }
 
   public static class GameConstants {

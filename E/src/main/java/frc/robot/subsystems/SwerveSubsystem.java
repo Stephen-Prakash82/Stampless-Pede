@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Meter;
 
+import java.lang.Math;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -16,9 +17,12 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
+import frc.robot.Constants.OperatorConstants;
+
 import java.io.File;
 import java.util.Arrays;
 import java.util.function.DoubleSupplier;
@@ -33,21 +37,21 @@ import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
 import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 
+
+
 public class SwerveSubsystem extends SubsystemBase
 {
   /**
    * Swerve drive object.
    */
   private final SwerveDrive swerveDrive;
-
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
    *
    * @param directory Directory of swerve drive config files.
    */
-   public SwerveSubsystem(File directory)
+   public SwerveSubsystem(File directory, boolean blueAlliance)
   { 
-    boolean blueAlliance = DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Blue;
     Pose2d startingPose = blueAlliance ? new Pose2d(new Translation2d(Meter.of(1),
                                                                       Meter.of(4)),
                                                     Rotation2d.fromDegrees(0))
@@ -90,9 +94,26 @@ public class SwerveSubsystem extends SubsystemBase
                                              Rotation2d.fromDegrees(0)));
   }
 
+  public void sendVisionToDrivetrain() {
+    swerveDrive.addVisionMeasurement(Vision.robotPose, Vision.poseTimestamp, Vision.estStdDevs);
+  }
+
+  //Get robot pose and send it to drivetrain
+  public Command getRobotPose() {
+    return run(() -> {
+
+      Vision.getVisionPose();
+      sendVisionToDrivetrain();
+
+    });
+  }
+
   @Override
   public void periodic()
   {
+    //Get robot pose periodically
+    //to-do: add a check to make sure vision actually has a pose estimate before we use the vision pose
+    CommandScheduler.getInstance().schedule(getRobotPose());
   }
 
   @Override
@@ -195,7 +216,7 @@ public class SwerveSubsystem extends SubsystemBase
       // Make the robot move
       swerveDrive.drive(SwerveMath.scaleTranslation(new Translation2d(
                             translationX.getAsDouble() * swerveDrive.getMaximumChassisVelocity(),
-                            translationY.getAsDouble() * swerveDrive.getMaximumChassisVelocity()), 0.8),
+                            translationY.getAsDouble() * swerveDrive.getMaximumChassisVelocity()), OperatorConstants.kscale),
                         Math.pow(angularRotationX.getAsDouble(), 3) * 0.4 * swerveDrive.getMaximumChassisAngularVelocity(),
                         true,
                         false);
@@ -218,7 +239,7 @@ public class SwerveSubsystem extends SubsystemBase
     return run(() -> {
 
       Translation2d scaledInputs = SwerveMath.scaleTranslation(new Translation2d(translationX.getAsDouble(),
-                                                                                 translationY.getAsDouble()), 0.8);
+                                                                                 translationY.getAsDouble()), OperatorConstants.kscale);
 
       // Make the robot move
       driveFieldOriented(swerveDrive.swerveController.getTargetSpeeds(scaledInputs.getX(), scaledInputs.getY(),
