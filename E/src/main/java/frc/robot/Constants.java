@@ -84,19 +84,22 @@ public final class Constants {
     public static final double kLoaderDutyCycle = 1; // Adjust as necessary
     public static final double kFrontMotorsDutyCycle = 1; // Adjust as necessary
     public static final double kRearMotorDutyCycle = .6; // Adjust as necessar
-    public static final double DoubleMotorkS = 0.25; // Add 0.25 V output to overcome static friction
-    public static final double DoubleMotorkV = 0.12; // A velocity target of 1 rps results in 0.12 V output
-    public static final double DoubleMotorkA = 0.01; // An acceleration of 1 rps/s requires 0.01 V output
-    public static final double DoubleMotorkP = 4.8; // A position error of 2.5 rotations results in 12 V output
-    public static final double DoubleMotorkI = 0; // no output for integrated error
-    public static final double DoubleMotorkD = 0.1; // A velocity error of 1 rps results in 0.1 V output
-    public static final double RearMotorkS = 0.25; // Add 0.25 V output to overcome static friction
-    public static final double RearMotorkV = 0.12; // A velocity target of 1 rps results in 0.12 V output
-    public static final double RearMotorkA = 0.01; // An acceleration of 1 rps/s requires 0.01 V output
-    public static final double RearMotorkP = 4.8; // A position error of 2.5 rotations results in 12 V output
-    public static final double RearMotorkI = 0; // no output for integrated error
-    public static final double RearMotorkD = 0.1; // A velocity error of 1 rps results in 0.1 V output
-    
+    public static final double kDoubleMotorkS = 0.25; // Add 0.25 V output to overcome static friction
+    public static final double kDoubleMotorkV = 0.12; // A velocity target of 1 rps results in 0.12 V output
+    public static final double kDoubleMotorkA = 0.01; // An acceleration of 1 rps/s requires 0.01 V output
+    public static final double kDoubleMotorkP = 4.8; // A position error of 2.5 rotations results in 12 V output
+    public static final double kDoubleMotorkI = 0; // no output for integrated error
+    public static final double kDoubleMotorkD = 0.1; // A velocity error of 1 rps results in 0.1 V output
+    public static final double kRearMotorkS = 0.25; // Add 0.25 V output to overcome static friction
+    public static final double kRearMotorkV = 0.12; // A velocity target of 1 rps results in 0.12 V output
+    public static final double kRearMotorkA = 0.01; // An acceleration of 1 rps/s requires 0.01 V output
+    public static final double kRearMotorkP = 4.8; // A position error of 2.5 rotations results in 12 V output
+    public static final double kRearMotorkI = 0; // no output for integrated error
+    public static final double kRearMotorkD = 0.1; // A velocity error of 1 rps results in 0.1 V output
+
+    public static final double kFrontMotorsVelocity = 200;
+    public static final double kRearMotorVelocity = 200;
+    public static final double kMaxCurrent = 40; // maximum applied current (amperes)
   }
 
   public static class VisionConstants {
