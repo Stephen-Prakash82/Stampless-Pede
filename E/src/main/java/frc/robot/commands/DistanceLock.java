@@ -11,6 +11,8 @@ import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.Vision;
 import swervelib.SwerveInputStream;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Translation2d;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class DistanceLock extends Command {
@@ -20,6 +22,12 @@ public class DistanceLock extends Command {
     private final Vision vision;
     private final CommandXboxController controller;
     private double currentDistance;
+    private double xTranslation;
+    private double xDesiredPose;
+    private double yDesiredPose;
+    private double yTranslation;
+    private Translation2d distLockTranslation;
+    private Pose2d poseTag;
     
     private final int[]  targetTagIDs;
     public DistanceLock(SwerveSubsystem swerveSubsystem, Vision visionsystem, CommandXboxController DriveController, int[] targetTagIDsArg) {
@@ -35,23 +43,24 @@ public class DistanceLock extends Command {
     public void initialize() {
         // find distance from bot to tag
         currentDistance = Vision.getTagDistance(targetTagIDs[0]);
+        poseTag = Vision.getTagPose(targetTagIDs[0]);
+
     }
 
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
-        //input stream for the drive command
-        SwerveInputStream distLockAngularVelocity = SwerveInputStream.of(swerve.getSwerveDrive(),
-                () -> -1 * Math.sqrt(currentDistance * currentDistance
-                        - controller.getLeftX() * OperatorConstants.kscale * controller.getLeftX()
-                                * OperatorConstants.kscale),
-                () -> controller.getLeftX() * -1 * OperatorConstants.kscale)
-                .deadband(OperatorConstants.DEADBAND)
-                .allianceRelativeControl(true);
+        
+        //Uses the equation of a circle with radius currentDistance and center at the location of the tag to find the y translation for a joystick x-translation
+        yTranslation = -1 * controller.getLeftY() * swerve.getSwerveDrive().getMaximumChassisVelocity() * OperatorConstants.kscale;
+        yDesiredPose = Vision.robotPose.getY() + yTranslation;
+        xDesiredPose = (-1 * Math.sqrt(currentDistance*currentDistance - (yDesiredPose - poseTag.getY())*(yDesiredPose - poseTag.getY()))) + poseTag.getX();
+        xTranslation = xDesiredPose - Vision.robotPose.getX();
 
-        //uses input stream to drive field oriented -- works like YAGSL Example, to understand, check definition of driveFieldOriented and SwerveInputStream
-        //if this doesn't work, just switch to using driveCommand(translX, translY, angrotX)
-        swerve.driveFieldOriented(distLockAngularVelocity);
+        distLockTranslation = new Translation2d(xTranslation, yTranslation);
+
+        swerve.drive(distLockTranslation, 0, true);
+
     }
 
     // Called once the command ends or is interrupted.
