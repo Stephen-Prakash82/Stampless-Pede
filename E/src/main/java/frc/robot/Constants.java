@@ -146,6 +146,7 @@ public final class Constants {
         .loadField(AprilTagFields.k2026RebuiltAndymark);
     public static final AprilTagFieldLayout kWeldedLayout = AprilTagFieldLayout
         .loadField(AprilTagFields.k2026RebuiltWelded);
+    public static final AprilTagFieldLayout kFieldLayout = kWeldedLayout; //Change this constant to the field layout we are using
   }
 
   public static class AutoConstants {

@@ -31,7 +31,7 @@ public class Vision extends SubsystemBase {
     private static final PhotonCamera camera = new PhotonCamera(VisionConstants.kCameraName);
 
     // Choose the field layout
-    public static AprilTagFieldLayout fieldLayout = GameConstants.kAndymarkLayout;
+    public static AprilTagFieldLayout fieldLayout = GameConstants.kFieldLayout;
 
     // Variable for Std. Dev
     private static Matrix<N3, N1> curStdDevs;
