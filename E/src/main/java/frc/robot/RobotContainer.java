@@ -21,6 +21,7 @@ import swervelib.SwerveInputStream;
 import frc.robot.commands.*;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+
 /**
  * This class is where the bulk of the robot should be declared. Since
  * Command-based is a
@@ -31,8 +32,9 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-  private final boolean blueAlliance = DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Blue;
-  private final int[] ktargetTagIDs = blueAlliance? new int[]{25,26} : new int[]{9,10};
+  private final boolean blueAlliance = DriverStation.getAlliance().isPresent()
+      && DriverStation.getAlliance().get() == Alliance.Blue;
+  private final int[] ktargetTagIDs = blueAlliance ? new int[] { 25, 26 } : new int[] { 9, 10 };
   private final SwerveSubsystem m_swervedrive = new SwerveSubsystem(
       new File(Filesystem.getDeployDirectory(), "swerve"), blueAlliance);
   private final ShooterSubsystem m_shooter = new ShooterSubsystem();
@@ -42,8 +44,9 @@ public class RobotContainer {
   private final AimLock c_AimLock = new AimLock(m_swervedrive, m_vision, ktargetTagIDs);
   private final ShootCommand c_ShootCommand = new ShootCommand(m_shooter, m_intake, m_vision, ktargetTagIDs[0]);
   private final DistanceLock c_DistLock = new DistanceLock(m_swervedrive, m_vision, m_DriverController, ktargetTagIDs);
-  private final moveRobotToDistance c_MoveToDistance = new moveRobotToDistance(m_swervedrive, m_vision, ktargetTagIDs, OperatorConstants.kRadii);
+  private final moveRobotToDistance c_MoveToDistance = new moveRobotToDistance(m_swervedrive, m_vision, ktargetTagIDs);
   private final AutoAlign c_AutoAlign = new AutoAlign(c_AimLock, c_DistLock, c_MoveToDistance);
+
   public RobotContainer() {
 
     NamedCommands.registerCommand("deployIntake", m_intake.deployIntakeCommand());

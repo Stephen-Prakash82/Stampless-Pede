@@ -15,7 +15,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class DistanceLock extends Command {
     /** Creates a new DistanceLock. */
-    
+
     private final SwerveSubsystem swerve;
     private final Vision vision;
     private final CommandXboxController controller;
@@ -26,13 +26,15 @@ public class DistanceLock extends Command {
     private double yTranslation;
     private Translation2d distLockTranslation;
     private Pose2d poseTag;
-    
-    private final int[]  targetTagIDs;
-    public DistanceLock(SwerveSubsystem swerveSubsystem, Vision visionsystem, CommandXboxController DriveController, int[] targetTagIDsArg) {
+
+    private final int[] targetTagIDs;
+
+    public DistanceLock(SwerveSubsystem swerveSubsystem, Vision visionsystem, CommandXboxController DriveController,
+            int[] targetTagIDsArg) {
         swerve = swerveSubsystem;
         vision = visionsystem;
         controller = DriveController;
-        targetTagIDs = targetTagIDsArg;  
+        targetTagIDs = targetTagIDsArg;
         addRequirements(swerve, vision);
     }
 
@@ -48,11 +50,15 @@ public class DistanceLock extends Command {
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
-        
-        //Uses the equation of a circle with radius currentDistance and center at the location of the tag to find the y translation for a joystick x-translation
-        yTranslation = -1 * controller.getLeftY() * swerve.getSwerveDrive().getMaximumChassisVelocity() * OperatorConstants.kScale;
+
+        // Uses the equation of a circle with radius currentDistance and center at the
+        // location of the tag to find the y translation for a joystick x-translation
+        yTranslation = -1 * controller.getLeftY() * swerve.getSwerveDrive().getMaximumChassisVelocity()
+                * OperatorConstants.kScale;
         yDesiredPose = Vision.robotPose.getY() + yTranslation;
-        xDesiredPose = (-1 * Math.sqrt(currentDistance*currentDistance - (yDesiredPose - poseTag.getY())*(yDesiredPose - poseTag.getY()))) + poseTag.getX();
+        xDesiredPose = (-1 * Math.sqrt(
+                currentDistance * currentDistance - (yDesiredPose - poseTag.getY()) * (yDesiredPose - poseTag.getY())))
+                + poseTag.getX();
         xTranslation = xDesiredPose - Vision.robotPose.getX();
 
         distLockTranslation = new Translation2d(xTranslation, yTranslation);

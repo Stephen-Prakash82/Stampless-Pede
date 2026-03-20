@@ -25,8 +25,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Translation2d;
 
- public class Vision extends SubsystemBase {
-    
+public class Vision extends SubsystemBase {
+
     // Create the camera
     private static final PhotonCamera camera = new PhotonCamera(VisionConstants.kCameraName);
 
@@ -40,7 +40,8 @@ import edu.wpi.first.math.geometry.Translation2d;
     private static Optional<EstimatedRobotPose> visionEst = Optional.empty();
 
     // Initialize the robot pose estimator
-    private static PhotonPoseEstimator photonEstimator = new PhotonPoseEstimator(fieldLayout, VisionConstants.kRobotToCam);
+    private static PhotonPoseEstimator photonEstimator = new PhotonPoseEstimator(fieldLayout,
+            VisionConstants.kRobotToCam);
 
     // Initialize variables for robot pose drivetrain integration
     public static Pose2d robotPose;
@@ -51,11 +52,10 @@ import edu.wpi.first.math.geometry.Translation2d;
     public static double distFromAprilTagInMeters;
     public static Pose2d tagPose;
     private static Optional<Pose3d> tagPose3d;
-            
+
     // Initialize the target yaw variable
     public static Rotation2d targetYaw = Rotation2d.kZero;
     // Target we want to get the distance to, change this number when we find out
-    
 
     // Get the robot's pose on the field and distance data
     public static void getVisionPose() {
@@ -97,12 +97,12 @@ import edu.wpi.first.math.geometry.Translation2d;
     }
 
     public static Pose2d getTagPose(int tagID) {
-        
+
         // Get all unread results
         List<PhotonPipelineResult> tagResults = camera.getAllUnreadResults();
 
         for (PhotonPipelineResult result : tagResults) {
-            
+
             var targets = result.getTargets();
 
             for (var target : targets) {
@@ -158,6 +158,20 @@ import edu.wpi.first.math.geometry.Translation2d;
 
     public static Translation2d robotToPoint(double distanceToPoint, Rotation2d yawToPoint) {
         return PhotonUtils.estimateCameraToTargetTranslation(distanceToPoint, yawToPoint);
+    }
+
+    public static double findClosestRadius(double[] radii, double distance) {
+
+        int closest = 0;
+
+        for (int i = 0; i < radii.length; i++) {
+            double radius = radii[i];
+            if (Math.abs(radius - distance) < radii[closest]) {
+                closest = i;
+            }
+        }
+
+        return radii[closest];
     }
 
     // Std Dev Calculation from Docs:
