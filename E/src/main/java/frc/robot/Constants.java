@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import org.photonvision.PhotonCamera;
+
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.VecBuilder;
@@ -88,7 +90,8 @@ public final class Constants {
     public static final double kRetractPosition = kIntakeArmRotationOffset;
     public static final double kIntakeJigglePosition = 15;
   }
-
+  public static record MotorOutputVelocities(double FrontMotorVelocity, double RearMotorVelocity) {
+  }
   public static class ShooterConstants {
     // we lowk need dose encodors plsplspls stevenplspls
     public static final int kShooterLoaderMotorCanID = 9;
@@ -113,22 +116,24 @@ public final class Constants {
     public static final double kFrontMotorsVelocity = 10;
     public static final double kRearMotorVelocity = 10;
     public static final double kMaxCurrent = 40; // maximum applied current (amperes)
+    
+
+    
   }
 
   public static class VisionConstants {
 
-    public static final String kCameraName = "Camera1";
+    public static final String[] kCameraNames = {"Camera 1", "Camera 2"};
+    public static final Transform3d[] kCameraOffsets = {new Transform3d(),new Transform3d()};
+
     // Offset from the center of the camera to the robot center
     public static final Transform3d kRobotToCam = new Transform3d(new Translation3d(0, 0.3937, -0.4699),
         new Rotation3d(Units.degreesToRadians(86), 0, 0));
     public static final Matrix<N3, N1> kSingleTagStdDevs = VecBuilder.fill(4, 4, 8);
     public static final Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(0.5, 0.5, 1);
 
-    public static final double kDistanceArg = -1; // TBD through testing
-    public static final double kDistanceFromTarget = -1; // TBD through testing, make it a function and move it
-                                                         // elsewhere
   }
-
+  
   public static class GameConstants {
     // Field Layouts
     public static final AprilTagFieldLayout kAndymarkLayout = AprilTagFieldLayout

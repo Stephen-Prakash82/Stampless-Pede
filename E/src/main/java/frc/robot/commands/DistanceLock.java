@@ -16,9 +16,9 @@ import edu.wpi.first.math.geometry.Translation2d;
 public class DistanceLock extends Command {
     /** Creates a new DistanceLock. */
 
-    private final SwerveSubsystem swerve;
-    private final Vision vision;
-    private final CommandXboxController controller;
+    private final SwerveSubsystem m_swerve;
+    private final Vision m_vision;
+    private final CommandXboxController m_controller;
     private double currentDistance;
     private double xTranslation;
     private double xDesiredPose;
@@ -31,19 +31,19 @@ public class DistanceLock extends Command {
 
     public DistanceLock(SwerveSubsystem swerveSubsystem, Vision visionsystem, CommandXboxController DriveController,
             int[] targetTagIDsArg) {
-        swerve = swerveSubsystem;
-        vision = visionsystem;
-        controller = DriveController;
+        m_swerve = swerveSubsystem;
+        m_vision = visionsystem;
+        m_controller = DriveController;
         targetTagIDs = targetTagIDsArg;
-        addRequirements(swerve, vision);
+        addRequirements(m_swerve, m_vision);
     }
 
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
         // find distance from bot to tag
-        currentDistance = Vision.getTagDistance(targetTagIDs[1]);
-        poseTag = Vision.getTagPose(targetTagIDs[1]);
+        currentDistance = m_vision.getTagDistance(targetTagIDs[1]);
+        poseTag = m_vision.getTagPose(targetTagIDs[1]);
 
     }
 
@@ -53,17 +53,17 @@ public class DistanceLock extends Command {
 
         // Uses the equation of a circle with radius currentDistance and center at the
         // location of the tag to find the y translation for a joystick x-translation
-        yTranslation = -1 * controller.getLeftY() * swerve.getSwerveDrive().getMaximumChassisVelocity()
+        yTranslation = -1 * m_controller.getLeftY() * m_swerve.getSwerveDrive().getMaximumChassisVelocity()
                 * OperatorConstants.kScale;
-        yDesiredPose = Vision.robotPose.getY() + yTranslation;
+        yDesiredPose = m_vision.robotPose.getY() + yTranslation;
         xDesiredPose = (-1 * Math.sqrt(
                 currentDistance * currentDistance - (yDesiredPose - poseTag.getY()) * (yDesiredPose - poseTag.getY())))
                 + poseTag.getX();
-        xTranslation = xDesiredPose - Vision.robotPose.getX();
+        xTranslation = xDesiredPose - m_vision.robotPose.getX();
 
         distLockTranslation = new Translation2d(xTranslation, yTranslation);
 
-        swerve.drive(distLockTranslation, 0, true);
+        m_swerve.drive(distLockTranslation, 0, true);
 
     }
 

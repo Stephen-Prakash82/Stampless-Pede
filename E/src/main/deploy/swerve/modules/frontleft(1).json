@@ -20,8 +20,8 @@
   },
   "encoder": {
     "type": "cancoder",
-    "id": 1,
-    "canbus": "CANivore"
+    "id": 15,
+    "canbus": null
   },
   "absoluteEncoderInverted": false
 }

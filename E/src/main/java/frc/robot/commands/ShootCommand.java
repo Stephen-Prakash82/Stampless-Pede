@@ -1,7 +1,5 @@
 package frc.robot.commands;
 
-import java.util.HashMap;
-
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.IntakeConstants;
@@ -17,39 +15,20 @@ public class ShootCommand extends Command {
     private final int[] targetTagIDs;
     private double closestRadius;
 
-    record MotorOutputVelocities(double FrontMotorVelocity, double RearMotorVelocity) {
-    }
-
-    private HashMap<Double, MotorOutputVelocities> distanceToVelocityMap = new HashMap<>(); // this is a placeholder for
-                                                                                            // the actual map that will
-                                                                                            // be used to convert
-                                                                                            // distance to velocity
-
     public ShootCommand(ShooterSubsystem shooterArg, IntakeArm intakeArmArg, Vision visionArg, int[] targetTagIDArgs) {
         m_shooter = shooterArg;
         m_intakeArm = intakeArmArg;
         m_vision = visionArg;
         targetTagIDs = targetTagIDArgs;
         addRequirements(m_shooter, m_vision);
-        distanceToVelocityMap.put(OperatorConstants.kRadii[0], new MotorOutputVelocities(10.0, 10.0)); // Example
-                                                                                                       // mapping,
-                                                                                                       // replace with
-                                                                                                       // actual values
-        distanceToVelocityMap.put(OperatorConstants.kRadii[1], new MotorOutputVelocities(20.0, 20.0)); // Example
-                                                                                                       // mapping,
-                                                                                                       // replace with
-                                                                                                       // actual values
-        distanceToVelocityMap.put(OperatorConstants.kRadii[2], new MotorOutputVelocities(30.0, 30.0)); // Example
-                                                                                                       // mapping,
-                                                                                                       // replace with
-                                                                                                       // actual values
+
     }
 
     @Override
     public void initialize() {
-        closestRadius = Vision.findClosestRadius(OperatorConstants.kRadii, Vision.getTagDistance(targetTagIDs[1]));
-        m_shooter.runFrontMotors(distanceToVelocityMap.get(closestRadius).FrontMotorVelocity());
-        m_shooter.runRearMotor(distanceToVelocityMap.get(closestRadius).RearMotorVelocity());
+        closestRadius = m_vision.findClosestRadius(OperatorConstants.kRadii, m_vision.getTagDistance(targetTagIDs[1]));
+        m_shooter.runFrontMotors(ShooterSubsystem.distanceToVelocityMap.get(closestRadius).FrontMotorVelocity());
+        m_shooter.runRearMotor(ShooterSubsystem.distanceToVelocityMap.get(closestRadius).RearMotorVelocity());
         Timer.delay(.1);
         m_intakeArm.runIntake(-(IntakeConstants.kIntakeVelocity / 2)); // FOR NOW
         m_shooter.runLoaderMotor();

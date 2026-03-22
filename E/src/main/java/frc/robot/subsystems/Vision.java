@@ -7,6 +7,7 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -16,8 +17,9 @@ import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonUtils;
+import frc.robot.RobotContainer;
+import java.util.HashMap;
 
-//Constants and Extras
 import frc.robot.Constants.VisionConstants;
 import frc.robot.Constants.GameConstants;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -27,140 +29,170 @@ import edu.wpi.first.math.geometry.Translation2d;
 
 public class Vision extends SubsystemBase {
 
-    // Create the camera
-    private static final PhotonCamera camera = new PhotonCamera(VisionConstants.kCameraName);
+    public static record cameraStorageObject(Transform3d cameraOffset, PhotonCamera cameraObject,
+            PhotonPoseEstimator cameraPoseEstimator) {
+    };
+
+    public static HashMap<String, cameraStorageObject> cameraHashMap = new HashMap<>();
+
+    private SwerveSubsystem m_swerve = RobotContainer.m_swervedrive;
 
     // Choose the field layout
-    public static AprilTagFieldLayout fieldLayout = GameConstants.kFieldLayout;
+    private AprilTagFieldLayout fieldLayout = GameConstants.kFieldLayout;
 
     // Variable for Std. Dev
-    private static Matrix<N3, N1> curStdDevs;
+    private Matrix<N3, N1> curStdDevs;
 
     // Initialize vision estimation variable
-    private static Optional<EstimatedRobotPose> visionEst = Optional.empty();
-
-    // Initialize the robot pose estimator
-    private static PhotonPoseEstimator photonEstimator = new PhotonPoseEstimator(fieldLayout,
-            VisionConstants.kRobotToCam);
+    private Optional<EstimatedRobotPose> visionEst = Optional.empty();
 
     // Initialize variables for robot pose drivetrain integration
-    public static Pose2d robotPose;
-    public static double poseTimestamp;
-    public static Matrix<N3, N1> estStdDevs;
+    public Pose2d robotPose;
+    public double poseTimestamp;
+    public Matrix<N3, N1> estStdDevs;
 
     // Initialize the distance calculation variables
-    public static double distFromAprilTagInMeters;
-    public static Pose2d tagPose;
-    private static Optional<Pose3d> tagPose3d;
+    private double distFromAprilTagInMeters;
+    private Pose2d tagPose;
+    private Optional<Pose3d> tagPose3d;
 
     // Initialize the target yaw variable
-    public static Rotation2d targetYaw = Rotation2d.kZero;
-    // Target we want to get the distance to, change this number when we find out
+    public Rotation2d targetYaw = Rotation2d.kZero;
+
+    // Place the corresponding camera values in the cameraHashMap
+    public Vision() {
+        cameraHashMap.put(VisionConstants.kCameraNames[0],
+                new cameraStorageObject(VisionConstants.kCameraOffsets[0],
+                        new PhotonCamera(VisionConstants.kCameraNames[0]),
+                        new PhotonPoseEstimator(fieldLayout, VisionConstants.kCameraOffsets[0])));
+        cameraHashMap.put(VisionConstants.kCameraNames[1],
+                new cameraStorageObject(VisionConstants.kCameraOffsets[1],
+                        new PhotonCamera(VisionConstants.kCameraNames[1]),
+                        new PhotonPoseEstimator(fieldLayout, VisionConstants.kCameraOffsets[1])));
+
+    }
 
     // Get the robot's pose on the field and distance data
-    public static void getVisionPose() {
+    public void getRobotPoseFunc() {
 
-        // Get all unread results
-        List<PhotonPipelineResult> results = camera.getAllUnreadResults();
+        for (int i = 0; i < VisionConstants.kCameraNames.length; i++) {
 
-        // Check if the latest result has April Tags
-        if (!results.isEmpty()) {
+            // Get the cameraStorageObject at the i-th row of the hashmap
+            cameraStorageObject cameraKey = cameraHashMap.get(VisionConstants.kCameraNames[i]);
 
-            for (PhotonPipelineResult result : results) {
-                // Only if results have targets
-                if (result.hasTargets()) {
+            // Get the pose-estimator and camera stored in the cameraKey
+            PhotonCamera camera = cameraKey.cameraObject;
+            PhotonPoseEstimator photonEstimator = cameraKey.cameraPoseEstimator;
 
-                    // Make vision estimate use multiple tags
-                    visionEst = photonEstimator.estimateCoprocMultiTagPose(result);
+            // Get all unread results
+            List<PhotonPipelineResult> results = camera.getAllUnreadResults();
 
-                    // Create a fallback if there aren't multiple tags
-                    if (visionEst.isEmpty()) {
-                        visionEst = photonEstimator.estimateLowestAmbiguityPose(result);
+            // Check if the latest result has April Tags
+            if (!results.isEmpty()) {
+
+                for (PhotonPipelineResult result : results) {
+                    // Only if results have targets
+                    if (result.hasTargets()) {
+
+                        // Make vision estimate use multiple tags
+                        visionEst = photonEstimator.estimateCoprocMultiTagPose(result);
+
+                        // Create a fallback if there aren't multiple tags
+                        if (visionEst.isEmpty()) {
+                            visionEst = photonEstimator.estimateLowestAmbiguityPose(result);
+                        }
+
+                        updateEstimationStdDevs(visionEst, result.getTargets(), photonEstimator);
+
+                        visionEst.ifPresent(
+                                est -> {
+                                    // Change our trust in the measurement based on the tags we can see
+                                    var estStdDevs = getEstimationStdDevs();
+                                    robotPose = est.estimatedPose.toPose2d();
+                                    poseTimestamp = est.timestampSeconds;
+
+                                    m_swerve.swerveDrive.addVisionMeasurement(robotPose, poseTimestamp, estStdDevs);
+
+                                });
                     }
 
-                    updateEstimationStdDevs(visionEst, result.getTargets());
-
-                    visionEst.ifPresent(
-                            est -> {
-                                // Change our trust in the measurement based on the tags we can see
-                                var estStdDevs = getEstimationStdDevs();
-                                robotPose = est.estimatedPose.toPose2d();
-                                poseTimestamp = est.timestampSeconds;
-
-                            });
                 }
 
             }
-
         }
 
     }
 
-    public static Pose2d getTagPose(int tagID) {
+    public Pose2d getTagPose(int tagID) {
 
-        // Get all unread results
-        List<PhotonPipelineResult> tagResults = camera.getAllUnreadResults();
+        // Get the 3D pose of the tag
+        tagPose3d = fieldLayout.getTagPose(tagID);
 
-        for (PhotonPipelineResult result : tagResults) {
+        // Extract the Pose2d out of the Optional
+        tagPose3d.ifPresent(
+                tag -> {
 
-            var targets = result.getTargets();
+                    // Turn the 3d pose into a 2d pose
+                    tagPose = tag.toPose2d();
 
-            for (var target : targets) {
-                if (target.getFiducialId() == tagID) {
-                    tagPose3d = fieldLayout.getTagPose(target.getFiducialId());
-
-                    // Extract the Pose2d out of the Optional
-                    tagPose3d.ifPresent(
-                            tag -> {
-
-                                // Turn the 3d pose into a 2d pose
-                                tagPose = tag.toPose2d();
-
-                            });
-                }
-            }
-        }
+                });
 
         return tagPose;
 
     }
 
-    public static double getTagDistance(int tagID) {
+    public double getTagDistance(int tagID) {
         distFromAprilTagInMeters = PhotonUtils.getDistanceToPose(robotPose, getTagPose(tagID));
 
         return distFromAprilTagInMeters;
     }
 
-    public static Rotation2d getTargetTagYaw(int tagID) {
+    // Get the yaw to a target
+    // Uses an optional in case we cannot acquire the yaw to the target
+    public Optional<Rotation2d> getTargetTagYaw(int tagID) {
 
-        // Get all unread results
-        List<PhotonPipelineResult> latestResults = camera.getAllUnreadResults();
-        double targetIntYaw = 0;
-        // Check if the latest result has April Tags
-        if (!latestResults.isEmpty()) {
-            var latestResult = latestResults.get(latestResults.size() - 1);
+        for (int i = 0; i < VisionConstants.kCameraNames.length; i++) {
 
-            // Get the yaw
-            if (latestResult.hasTargets()) {
-                // At least one AprilTag was seen by the camera
-                for (var target : latestResult.getTargets()) {
-                    if (target.getFiducialId() == tagID) {// need to replace with tag we are looking for
-                        // Found Tag 0, record its information
-                        targetIntYaw = target.getYaw();
-                        targetYaw = Rotation2d.fromRadians(targetIntYaw);
+            // Get the cameraStorageObject at the i-th row of the hashmap
+            cameraStorageObject keyCamera = cameraHashMap.get(VisionConstants.kCameraNames[i]);
 
+            // Get the camera from the cameraStorageObject
+            PhotonCamera cam = keyCamera.cameraObject;
+
+            // Get all unread results
+            List<PhotonPipelineResult> latestResults = cam.getAllUnreadResults();
+            double targetIntYaw = 0;
+            // Check if the latest result has April Tags
+            if (!latestResults.isEmpty()) {
+                var latestResult = latestResults.get(latestResults.size() - 1);
+
+                // Get the yaw
+                if (latestResult.hasTargets()) {
+                    // At least one AprilTag was seen by the camera
+                    for (var target : latestResult.getTargets()) {
+                        if (target.getFiducialId() == tagID) {
+                            // Found tag, record its information
+                            targetIntYaw = target.getYaw();
+                            targetYaw = Rotation2d.fromRadians(targetIntYaw);
+
+                            // Exit once yaw has been acquired
+                            return Optional.of(targetYaw);
+
+                        }
                     }
                 }
             }
         }
-        return targetYaw;
+
+        return Optional.empty();
+
     }
 
-    public static Translation2d robotToPoint(double distanceToPoint, Rotation2d yawToPoint) {
+    public Translation2d robotToPoint(double distanceToPoint, Rotation2d yawToPoint) {
         return PhotonUtils.estimateCameraToTargetTranslation(distanceToPoint, yawToPoint);
     }
 
-    public static double findClosestRadius(double[] radii, double distance) {
+    public double findClosestRadius(double[] radii, double distance) {
 
         int closest = 0;
 
@@ -176,8 +208,9 @@ public class Vision extends SubsystemBase {
 
     // Std Dev Calculation from Docs:
     // https://github.com/PhotonVision/photonvision/blob/e8efef476b3b4681c8899a8720774d6dbd5ccf56/photonlib-java-examples/poseest/src/main/java/frc/robot/Robot.java
-    private static void updateEstimationStdDevs(
-            Optional<EstimatedRobotPose> estimatedPose, List<PhotonTrackedTarget> targets) {
+    private void updateEstimationStdDevs(
+            Optional<EstimatedRobotPose> estimatedPose, List<PhotonTrackedTarget> targets,
+            PhotonPoseEstimator poseEstimator) {
         if (estimatedPose.isEmpty()) {
             // No pose input. Default to single-tag std devs
             curStdDevs = VisionConstants.kSingleTagStdDevs;
@@ -191,7 +224,7 @@ public class Vision extends SubsystemBase {
             // Precalculation - see how many tags we found, and calculate an
             // average-distance metric
             for (var tgt : targets) {
-                var tagPose = photonEstimator.getFieldTags().getTagPose(tgt.getFiducialId());
+                var tagPose = poseEstimator.getFieldTags().getTagPose(tgt.getFiducialId());
                 if (tagPose.isEmpty())
                     continue;
                 numTags++;
@@ -222,7 +255,7 @@ public class Vision extends SubsystemBase {
 
     }
 
-    private static Matrix<N3, N1> getEstimationStdDevs() {
+    private Matrix<N3, N1> getEstimationStdDevs() {
         return curStdDevs;
     }
 

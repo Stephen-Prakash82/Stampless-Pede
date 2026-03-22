@@ -13,10 +13,8 @@
 12: Shooter Front Lower Motor - TalonFX
 13: Intake Motor - TalonFX
 14: Intake Deploy Motor - TalonFX
-
-0: CANivore CANBUS ("CANivore"):
-1: Swerve Module #1 Absolute Encoder  - CANcoder
-2: Swerve Module #2 Absolute Encoder - CANcoder
-3: Swerve Module #3 Absolute Encoder - CANcoder
-4: Swerve Module #4 Absolute Encoder - CANcoder
-5: Gyro Module - Pigeon 2
+15: Swerve Module #1 Absolute Encoder  - CANcoder
+16: Swerve Module #2 Absolute Encoder - CANcoder
+17: Swerve Module #3 Absolute Encoder - CANcoder
+18: Swerve Module #4 Absolute Encoder - CANcoder
+19: Gyro Module - Pigeon 2

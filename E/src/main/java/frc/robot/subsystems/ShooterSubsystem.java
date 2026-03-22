@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ShooterConstants;
+import frc.robot.Constants.OperatorConstants;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
@@ -18,6 +19,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import java.util.HashMap;
 
 class DataEntry {
     TalonFX motor;
@@ -34,6 +36,9 @@ class DataEntry {
 
 // FINISH MOTION MAGIC BEFORE USING THIS CODE
 public class ShooterSubsystem extends SubsystemBase {
+    public static record MotorOutputVelocities(double FrontMotorVelocity, double RearMotorVelocity, double exitVelocity) {
+    }
+
     // in init function
     private final SparkMax m_LoaderMotor = new SparkMax(ShooterConstants.kShooterLoaderMotorCanID,
             MotorType.kBrushless);
@@ -42,8 +47,15 @@ public class ShooterSubsystem extends SubsystemBase {
     private final TalonFX m_FrontLowerMotor = new TalonFX(ShooterConstants.kShooterFrontLowerMotorCanID);
     private final DataEntry[] talons = new DataEntry[3];
     private final VelocityTorqueCurrentFOC m_velocityTorque = new VelocityTorqueCurrentFOC(0).withSlot(0);
+    public static final HashMap<Double, MotorOutputVelocities> distanceToVelocityMap = new HashMap<>();
 
     public ShooterSubsystem() {
+        distanceToVelocityMap.put(OperatorConstants.kRadii[0], new MotorOutputVelocities(10.0, 10.0, 1)); // THESE NEED
+                                                                                                          // ADJUSTMENT
+        distanceToVelocityMap.put(OperatorConstants.kRadii[1], new MotorOutputVelocities(20.0, 20.0, 2));// THESE NEED
+                                                                                                         // ADJUSTMENT
+        distanceToVelocityMap.put(OperatorConstants.kRadii[2], new MotorOutputVelocities(30.0, 30.0, 3));// THESE NEED
+                                                                                                         // ADJUSTMENT
         // Initialize your shooter motors and any necessary components here
         talons[0] = new DataEntry(m_RearMotor, "Rear Talon", 0);
         talons[1] = new DataEntry(m_FrontUpperMotor, "Front Upper Talon", 0);

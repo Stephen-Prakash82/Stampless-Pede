@@ -32,14 +32,14 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-  private final boolean blueAlliance = DriverStation.getAlliance().isPresent()
+  private static final boolean blueAlliance = DriverStation.getAlliance().isPresent()
       && DriverStation.getAlliance().get() == Alliance.Blue;
   private final int[] ktargetTagIDs = blueAlliance ? new int[] { 25, 26 } : new int[] { 9, 10 };
-  private final SwerveSubsystem m_swervedrive = new SwerveSubsystem(
-      new File(Filesystem.getDeployDirectory(), "swerve"), blueAlliance);
+  private static final Vision m_vision = new Vision();
+  public final static SwerveSubsystem m_swervedrive = new SwerveSubsystem(
+      new File(Filesystem.getDeployDirectory(), "swerve"), blueAlliance, m_vision);
   private final ShooterSubsystem m_shooter = new ShooterSubsystem();
   private final IntakeArm m_intake = new IntakeArm();
-  private final Vision m_vision = new Vision();
   CommandXboxController m_DriverController = new CommandXboxController(OperatorConstants.kDriverControllerPort);
   private final AimLock c_AimLock = new AimLock(m_swervedrive, m_vision, ktargetTagIDs);
   private final ShootCommand c_ShootCommand = new ShootCommand(m_shooter, m_intake, m_vision, ktargetTagIDs);
