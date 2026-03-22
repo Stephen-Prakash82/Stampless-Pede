@@ -30,7 +30,6 @@ import swervelib.SwerveController;
 import swervelib.SwerveDrive;
 import swervelib.SwerveDriveTest;
 import swervelib.math.SwerveMath;
-import swervelib.parser.SwerveControllerConfiguration;
 import swervelib.parser.SwerveDriveConfiguration;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
@@ -41,14 +40,14 @@ public class SwerveSubsystem extends SubsystemBase {
    * Swerve drive object.
    */
   public final SwerveDrive swerveDrive;
-  private final Vision m_vision;
+
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
    *
    * @param directory Directory of swerve drive config files.
    */
-  public SwerveSubsystem(File directory, boolean blueAlliance, Vision vision) {
-    Pose2d startingPose = blueAlliance ? new Pose2d(new Translation2d(Meter.of(1),
+  public SwerveSubsystem(File directory) {
+    Pose2d startingPose = Constants.blueAlliance ? new Pose2d(new Translation2d(Meter.of(1),
         Meter.of(4)),
         Rotation2d.fromDegrees(0))
         : new Pose2d(new Translation2d(Meter.of(16),
@@ -79,7 +78,7 @@ public class SwerveSubsystem extends SubsystemBase {
             // periodically when they are not moving.
     swerveDrive.pushOffsetsToEncoders(); // Set the absolute encoder to be used over the internal encoder and push the
                                          // offsets onto it. Throws warning if not possible
-    m_vision = vision;
+
   }
 
   /**
@@ -88,35 +87,6 @@ public class SwerveSubsystem extends SubsystemBase {
    * @param driveCfg      SwerveDriveConfiguration for the swerve.
    * @param controllerCfg Swerve Controller.
    */
-  public SwerveSubsystem(SwerveDriveConfiguration driveCfg, SwerveControllerConfiguration controllerCfg, Vision vision) {
-    swerveDrive = new SwerveDrive(driveCfg,
-        controllerCfg,
-        Constants.MAX_SPEED,
-        new Pose2d(new Translation2d(Meter.of(2), Meter.of(0)),
-            Rotation2d.fromDegrees(0)));
-    m_vision = vision;
-  }
-
-  public void sendVisionToDrivetrain() {
-    swerveDrive.addVisionMeasurement(m_vision.robotPose, m_vision.poseTimestamp, m_vision.estStdDevs);
-  }
-
-  // Get robot pose and send it to drivetrain
-  public Command getRobotPose() {
-    return run(() -> {
-
-      
-
-    });
-  }
-
-  @Override
-  public void periodic() {
-    // Get robot pose periodically
-    // to-do: add a check to make sure vision actually has a pose estimate before we
-    // use the vision pose
-    CommandScheduler.getInstance().schedule(getRobotPose());
-  }
 
   @Override
   public void simulationPeriodic() {

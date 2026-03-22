@@ -50,7 +50,7 @@ public class IntakeArm extends SubsystemBase {
     // measurement as feedback, and add a command to move to a specific angle
 
     public void deployIntake(double position) {
-        m_DeployMotor.setControl(m_positionTorque.withPosition(position/IntakeConstants.kArmDegreesPerRotation));
+        m_DeployMotor.setControl(m_positionTorque.withPosition(position / IntakeConstants.kArmDegreesPerRotation));
     }
 
     public Command deployIntakeCommand() {

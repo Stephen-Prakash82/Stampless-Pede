@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.IntakeArm;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
@@ -32,20 +33,16 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-  private static final boolean blueAlliance = DriverStation.getAlliance().isPresent()
-      && DriverStation.getAlliance().get() == Alliance.Blue;
-  private final int[] ktargetTagIDs = blueAlliance ? new int[] { 25, 26 } : new int[] { 9, 10 };
-  private static final Vision m_vision = new Vision();
-  public final static SwerveSubsystem m_swervedrive = new SwerveSubsystem(
-      new File(Filesystem.getDeployDirectory(), "swerve"), blueAlliance, m_vision);
+
+  public final SwerveSubsystem m_swervedrive = new SwerveSubsystem(
+      new File(Filesystem.getDeployDirectory(), "swerve"));
+  private final Vision m_vision = new Vision(m_swervedrive);
   private final ShooterSubsystem m_shooter = new ShooterSubsystem();
   private final IntakeArm m_intake = new IntakeArm();
   CommandXboxController m_DriverController = new CommandXboxController(OperatorConstants.kDriverControllerPort);
-  private final AimLock c_AimLock = new AimLock(m_swervedrive, m_vision, ktargetTagIDs);
-  private final ShootCommand c_ShootCommand = new ShootCommand(m_shooter, m_intake, m_vision, ktargetTagIDs);
-  private final DistanceLock c_DistLock = new DistanceLock(m_swervedrive, m_vision, m_DriverController, ktargetTagIDs);
-  private final moveRobotToDistance c_MoveToDistance = new moveRobotToDistance(m_swervedrive, m_vision, ktargetTagIDs);
-  private final AutoAlign c_AutoAlign = new AutoAlign(c_AimLock, c_DistLock, c_MoveToDistance);
+  private final ShootCommand c_ShootCommand = new ShootCommand(m_shooter, m_intake, m_vision);
+  private final moveRobotToDistance c_MoveToDistance = new moveRobotToDistance(m_swervedrive, m_vision);
+  private final AutoAlign c_AutoAlign = new AutoAlign(m_swervedrive, m_vision, m_DriverController, c_MoveToDistance);
 
   public RobotContainer() {
 
@@ -53,8 +50,7 @@ public class RobotContainer {
     NamedCommands.registerCommand("shoot", m_shooter.runShooter());
     NamedCommands.registerCommand("runIntake", m_intake.runIntakeCommand());
     NamedCommands.registerCommand("stopIntake", m_intake.stopIntakeCommand());
-    NamedCommands.registerCommand("AimLock", c_AimLock);
-    NamedCommands.registerCommand("DistanceLock", c_DistLock);
+    NamedCommands.registerCommand("AimLock", c_AutoAlign);
 
     configureBindings();
   }
@@ -85,10 +81,9 @@ public class RobotContainer {
 
     m_DriverController.leftBumper().onTrue(m_intake.retractIntakeCommand()).onFalse(m_intake.stopDeployMotorCommand());
     m_DriverController.rightBumper().onTrue(m_intake.deployIntakeCommand()).onFalse(m_intake.stopDeployMotorCommand());
-    m_DriverController.rightTrigger().onTrue(m_shooter.runShooter()).onTrue(m_intake.runIntakeReverse())
-        .onFalse(m_shooter.stop()).onFalse(m_intake.stopIntakeCommand());
+    m_DriverController.rightTrigger().onTrue(c_ShootCommand);
     m_DriverController.leftTrigger().onTrue(m_intake.runIntakeCommand()).onFalse(m_intake.stopIntakeCommand());
-    m_DriverController.a().toggleOnTrue(c_AimLock).onFalse(driveFieldOrientedAngularVelocity);
+    m_DriverController.a().toggleOnTrue(c_AutoAlign).onFalse(driveFieldOrientedAngularVelocity);
     m_DriverController.b().onTrue(m_swervedrive.centerModulesCommand())
         .onFalse(driveFieldOrientedAngularVelocity);
     m_DriverController.rightStick().onTrue(m_swervedrive.zeroGyroWithAllianceCommand())

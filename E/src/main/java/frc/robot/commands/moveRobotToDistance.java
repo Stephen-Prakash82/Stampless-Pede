@@ -6,9 +6,9 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.Vision;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
@@ -16,13 +16,11 @@ public class moveRobotToDistance extends Command {
     /** Creates a new DistanceLock. */
     private final SwerveSubsystem m_swerve;
     private final Vision m_vision;
-    private int[] targetTagIDs;
     private double closestRadius;
 
-    public moveRobotToDistance(SwerveSubsystem swervesystem, Vision visionsystem, int[] targetTagIDArgs) {
+    public moveRobotToDistance(SwerveSubsystem swervesystem, Vision visionsystem) {
         m_swerve = swervesystem;
         m_vision = visionsystem;
-        targetTagIDs = targetTagIDArgs;
         addRequirements(m_swerve, m_vision);
     }
 
@@ -30,7 +28,7 @@ public class moveRobotToDistance extends Command {
     @Override
     public void initialize() {
 
-        double tagCurrentDistance = m_vision.getTagDistance(targetTagIDs[1]);
+        double tagCurrentDistance = m_vision.getTagDistance(VisionConstants.ktargetTagIDs[1]);
 
         // figure out which radius is closest to the bot
         closestRadius = m_vision.findClosestRadius(OperatorConstants.kRadii, tagCurrentDistance);
@@ -38,18 +36,17 @@ public class moveRobotToDistance extends Command {
         // get the distance of the point on the circle closest to the robot
         double distRobotToCircle = tagCurrentDistance - closestRadius;
 
-        var yawOptional = m_vision.getTargetTagYaw(targetTagIDs[1]);
+        var yawOptional = m_vision.getTargetTagYaw(VisionConstants.ktargetTagIDs[1]);
 
-        //Make sure there is a yaw to use
+        // Make sure there is a yaw to use
         yawOptional.ifPresent(
-            yaw -> {
-                // get a translation from the robot to the point
-                Translation2d robotToPointTranslation = m_vision.robotToPoint(distRobotToCircle, yaw);
-            
-                // Move the robot by this translation
-                m_swerve.drive(robotToPointTranslation, 0, false);
-            }
-        );
+                yaw -> {
+                    // get a translation from the robot to the point
+                    Translation2d robotToPointTranslation = m_vision.robotToPoint(distRobotToCircle, yaw);
+
+                    // Move the robot by this translation
+                    m_swerve.drive(robotToPointTranslation, 0, false);
+                });
 
     }
 
