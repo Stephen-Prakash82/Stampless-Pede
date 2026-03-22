@@ -4,10 +4,6 @@
 
 package frc.robot;
 
-import org.photonvision.PhotonCamera;
-
-import static edu.wpi.first.units.Units.Meters;
-
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.VecBuilder;
