@@ -1,71 +1,68 @@
-// // Copyright (c) FIRST and other WPILib contributors.
-// // Open Source Software; you can modify and/or share it under the terms of
-// // the WPILib BSD license file in the root directory of this project.
+// Copyright (c) FIRST and other WPILib contributors.
+// Open Source Software; you can modify and/or share it under the terms of
+// the WPILib BSD license file in the root directory of this project.
 
-// package frc.robot.commands;
+package frc.robot.commands;
 
-// import edu.wpi.first.wpilibj2.command.Command;
-// import frc.robot.subsystems.SwerveSubsystem;
-// import frc.robot.subsystems.Vision;
-// import edu.wpi.first.math.geometry.Rotation2d;
-// import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants.OperatorConstants;
+import frc.robot.Constants.VisionConstants;
+import frc.robot.subsystems.SwerveSubsystem;
+import frc.robot.subsystems.Vision;
+import edu.wpi.first.math.geometry.Translation2d;
 
-// /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
-// public class moveRobotToDistance extends Command {
-//     /** Creates a new DistanceLock. */
-//     private final SwerveSubsystem swerve;
-//     private final Vision vision;
-//     private double[] radii;
-//     private int[] targetTagIDs;
-//     private int closestRadius = 0;
-    
-//     public moveRobotToDistance(SwerveSubsystem swervesystem, Vision visionsystem, int[] targetTagIDArgs, double[] radiiArgs) {
-//         swerve = swervesystem;
-//         vision = visionsystem;
-//         targetTagIDs = targetTagIDArgs;
-//         radii = radiiArgs;
-//         addRequirements(swerve, vision);
-//     }
+/* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
+public class moveRobotToDistance extends Command {
+    /** Creates a new DistanceLock. */
+    private final SwerveSubsystem m_swerve;
+    private final Vision m_vision;
+    private double closestRadius;
 
-//     // Called when the command is initially scheduled.
-//     @Override
-//     public void initialize() {
+    public moveRobotToDistance(SwerveSubsystem swervesystem, Vision visionsystem) {
+        m_swerve = swervesystem;
+        m_vision = visionsystem;
+        addRequirements(m_swerve, m_vision);
+    }
 
-//     //Get the current distance from the tag
-//     Rotation2d yawOfTag = Vision.getTargetTagYaw(targetTagIDs[0]);
-//     double tagCurrentDistance = Vision.getTagDistance(targetTagIDs[0]);
-    
-//     //figure out which radius is closest to the bot
-//     for (int i = 0; i < radii.length; i++) {
-//         double radius = radii[i];
-//         if(Math.abs(radius - tagCurrentDistance) < radii[closestRadius]){
-//             closestRadius = i;
-//         }
-//     }
+    // Called when the command is initially scheduled.
+    @Override
+    public void initialize() {
+        
+        double tagCurrentDistance = m_vision.getTagDistance(VisionConstants.ktargetTagIDs);
 
-//      //get the distance of the point on the circle closest to the robot
-//      double distRobotToCircle = tagCurrentDistance - radii[closestRadius];
+        // figure out which radius is closest to the bot
+        closestRadius = m_vision.findClosestRadius(OperatorConstants.kRadii, tagCurrentDistance);
 
-//      //get a translation from the robot to the point
-//      Translation2d robotToPointTranslation = Vision.robotToPoint(distRobotToCircle, yawOfTag);
+        // get the distance of the point on the circle closest to the robot
+        double distRobotToCircle = tagCurrentDistance - closestRadius;
 
-//      //Move the robot by this translation
-//      swerve.drive(robotToPointTranslation, 0, false);
-//     }
+        var yawOptional = m_vision.getTargetTagYaw(VisionConstants.ktargetTagIDs);
 
-//     // Called every time the scheduler runs while the command is scheduled.
-//     @Override
-//     public void execute() {   
-//     }
+        // Make sure there is a yaw to use
+        // yawOptional.ifPresent(
+        //         yaw -> {
+        //             // get a translation from the robot to the point
+        //             Translation2d robotToPointTranslation = m_vision.robotToPoint(distRobotToCircle, yaw);
 
-//     // Called once the command ends or is interrupted.
-//     @Override
-//     public void end(boolean interrupted) {
-//     }
+        //             // Move the robot by this translation
+        //             m_swerve.drive(robotToPointTranslation, 0, false);
+        //         });
 
-//     // Returns true when the command should end.
-//     @Override
-//     public boolean isFinished() {
-//         return false;
-//     }
-// }
+    }
+
+    // Called every time the scheduler runs while the command is scheduled.
+    @Override
+    public void execute() {
+    }
+
+    // Called once the command ends or is interrupted.
+    @Override
+    public void end(boolean interrupted) {
+    }
+
+    // Returns true when the command should end.
+    @Override
+    public boolean isFinished() {
+        return false;
+    }
+}
