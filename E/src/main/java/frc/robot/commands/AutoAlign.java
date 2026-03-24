@@ -7,7 +7,7 @@ package frc.robot.commands;
 import static edu.wpi.first.units.Units.Meters;
 
 import java.util.Optional;
-import java.util.function.DoubleSupplier;
+
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -52,87 +52,68 @@ public class AutoAlign extends Command {
         // CommandScheduler.getInstance().schedule(c_moveToDistance);
         poseTag = m_vision.getTagPose(VisionConstants.ktargetTagIDs);
         System.out.println("e");
-        double yaw = m_vision.getTargetTagYaw(VisionConstants.ktargetTagIDs);
-        // System.out.println(yaw);
-        // System.out.println(generateCompensatedVector());
-        // System.out.println(xTranslation);
-        // System.out.println(yTranslation);
-        if (yaw != 0) {
+        double yaw;
+        System.out.println(m_swerve.getHeading().getDegrees());
+        Optional<Double> targetOptional = m_vision.getTargetTagYaw(10);
+        if (targetOptional.isPresent()) {
+            yaw = targetOptional.get();
+            System.out.println(yaw);
             m_swerve.drive(m_swerve.getTargetSpeeds(0,
                                 0,
-                                Rotation2d.fromDegrees(yaw)));
+                                Rotation2d.fromDegrees(-yaw)));
         }
     }
     
 
-    // private Rotation2d generateCompensatedVector() {
+    //private Rotation2d generateCompensatedVector() {
 
-    //     // double idealSpeed =
-    //     // ShooterSubsystem.distanceToVelocityMap.get(currentDistance).exitVelocityMPS();
+        // double idealSpeed = ShooterSubsystem.distanceToVelocityMap.get(currentDistance).exitVelocityMPS();
 
-    //     //Rotation2d yaw = m_vision.getTargetTagYaw(VisionConstants.ktargetTagIDs);
+        //double yaw = m_vision.getTargetTagYaw(VisionConstants.ktargetTagIDs);
 
-    //     // Translation2d targetPosition = m_vision.robotToPoint(currentDistance,
-    //     // targetYaw).plus(VisionConstants.kMiddleHubTagOffset);
+        // Translation2d targetPosition = m_vision.robotToPoint(currentDistance,
+        // targetYaw).plus(VisionConstants.kMiddleHubTagOffset);
 
-    //     // // Translation to be moved per second
-    //     // Translation2d robotVelocity = new
-    //     // Translation2d(Meters.of(m_swerve.getRobotVelocity().vxMetersPerSecond),
-    //     // Meters.of(m_swerve.getRobotVelocity().vyMetersPerSecond)); // Field centric
-    //     // velocity!
+        // // Translation to be moved per second
+        // Translation2d robotVelocity = new
+        // Translation2d(Meters.of(m_swerve.getRobotVelocity().vxMetersPerSecond),
+        // Meters.of(m_swerve.getRobotVelocity().vyMetersPerSecond)); // Field centric
+        // velocity!
 
-    //     // // Calculate the ideal exit velocity magnitude (based on distance)
-    //     // Translation2d targetVector =
-    //     // targetPosition.div(currentDistance).times(idealSpeed);
+        // // Calculate the ideal exit velocity magnitude (based on distance)
+        // Translation2d targetVector =
+        // targetPosition.div(currentDistance).times(idealSpeed);
 
-    //     return yaw;
-    //     // double turretAngle = shotVector.getAngle().getDegrees();
-    //     // double requiredSpeed = shotVector.getNorm();
+        //return yaw;
+        // double turretAngle = shotVector.getAngle().getDegrees();
+        // double requiredSpeed = shotVector.getNorm();
 
-    //     // OPTION 1: Variable Flywheel Speed (Fixed Hood)
-    //     // double shooterRPM = calcRPM(requiredSpeed);
+        // OPTION 1: Variable Flywheel Speed (Fixed Hood)
+        // double shooterRPM = calcRPM(requiredSpeed);
 
-    //     // OPTION 2: Variable Hood Angle (Constant Speed)
-    //     // double constantTotalSpeed = 15.0; // m/s
-    //     // double newPitch = Math.acos(requiredSpeed / constantTotalSpeed);
+        // OPTION 2: Variable Hood Angle (Constant Speed)
+        // double constantTotalSpeed = 15.0; // m/s
+        // double newPitch = Math.acos(requiredSpeed / constantTotalSpeed);
 
-    //     // NOTE: For high-arc shots (like Rapid React or Rebuilt), `idealSpeed` MUST be
-    //     // the
-    //     // horizontal component of the exit velocity, NOT the total speed (RPM).
-    //     // If your lookup table gives total speed/RPM, you must project it:
-    //     // idealSpeed_Horizontal = Total_Speed * cos(release_angle);
-    // }
+        // NOTE: For high-arc shots (like Rapid React or Rebuilt), `idealSpeed` MUST be
+        // the
+        // horizontal component of the exit velocity, NOT the total speed (RPM).
+        // If your lookup table gives total speed/RPM, you must project it:
+        // idealSpeed_Horizontal = Total_Speed * cos(release_angle);
+    //}
 
     // Called every time the scheduler runs while the command is scheduled.
     @Override
-    public void execute() {}
-        
-    // System.out.println("ou");
-    // add code to turn bot constantly
-    // Uses the equation of a circle with radius currentDistance and center at the
-    // location of the tag to find the y translation for a joystick x-translation
-    // currentDistance = m_vision.getTagDistance(VisionConstants.ktargetTagIDs);
-
-    // yTranslation = -1 * m_controller.getLeftY() *
-    // m_swerve.getSwerveDrive().getMaximumChassisVelocity()
-    // * OperatorConstants.kScale;
-    // yDesiredPose = m_vision.getRobotPose().getY() + yTranslation;
-    // xDesiredPose = (-1 * Math.sqrt(
-    // currentDistance * currentDistance - (yDesiredPose - poseTag.getY()) *
-    // (yDesiredPose - poseTag.getY())))
-    // + poseTag.getX();
-    // xTranslation = xDesiredPose - m_vision.getRobotPose().getX();
-    // Rotation2d yaw = m_vision.getTargetTagYaw(VisionConstants.ktargetTagIDs);
-    // System.out.println(yaw);
-    // System.out.println(generateCompensatedVector());
-    // // System.out.println(xTranslation);
-    // // System.out.println(yTranslation);
-    // ChassisSpeeds alignVelocity =
-    // m_swerve.getTargetSpeeds(m_controller.getLeftX(), m_controller.getLeftY(),
-    // yaw);
-    // m_swerve.driveFieldOriented(alignVelocity);
-
-    // }
+    public void execute() {
+        // double yaw;
+        // Optional<Double> targetOptional = m_vision.getTargetTagYaw(10);
+        // if (targetOptional.isPresent()) {
+        //     yaw = targetOptional.get();
+        //     m_swerve.drive(m_swerve.getTargetSpeeds(m_controller.getLeftX(),
+        //                         m_controller.getLeftY(),
+        //                         Rotation2d.fromDegrees(-yaw)));
+        // }
+    }
 
     // Called once the command ends or is interrupted.
     @Override

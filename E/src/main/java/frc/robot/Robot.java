@@ -67,9 +67,9 @@ public class Robot extends TimedRobot {
   @Override 
   public void robotInit() 
   {
-    UsbCamera drivercam = CameraServer.startAutomaticCapture();
-    drivercam.setResolution(50,50);
-    drivercam.setFPS(30);
+    // UsbCamera drivercam = CameraServer.startAutomaticCapture();
+    // drivercam.setResolution(50,50);
+    // drivercam.setFPS(30);
   }
   @Override
   public void teleopInit() {

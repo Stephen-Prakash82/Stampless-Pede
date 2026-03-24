@@ -133,17 +133,14 @@ public class Vision extends SubsystemBase {
 
     // Get the yaw to a target
     // Uses an optional in case we cannot acquire the yaw to the target
-    public double getTargetTagYaw(int tagID) {
+    public Optional<Double> getTargetTagYaw(int tagID) {
 
-       
+        // Get the cameraStorageObject at entry in the hash-map
+        cameraStorageObject cameraKey = cameraHashMap.get("Camera 1");
 
-            // Get the cameraStorageObject at entry in the hash-map
-            cameraStorageObject cameraKey = cameraHashMap.get("Camera 1");
+        // Get the camera from the cameraStorageObject
+        PhotonCamera camera = cameraKey.cameraObject;
 
-            // Get the camera from the cameraStorageObject
-            PhotonCamera camera = cameraKey.cameraObject;
-
-boolean targetVisible = false;
         double targetYaw = 0.0;
         var results = camera.getAllUnreadResults();
         if (!results.isEmpty()) {
@@ -154,10 +151,8 @@ boolean targetVisible = false;
                 // At least one AprilTag was seen by the camera
                 for (var target : result.getTargets()) {
                     if (target.getFiducialId() == tagID) {
-                        // Found Tag 7, record its information
                         targetYaw = target.getYaw();
-                        targetVisible = true;
-                        // System.out.println(targetYaw);
+                        return Optional.of(targetYaw);
                     }
                 }
             }
@@ -165,8 +160,7 @@ boolean targetVisible = false;
 
         // Return an empty optional if no yaw was acquired
         System.out.println(targetYaw);
-        ;
-        return targetYaw;
+        return Optional.empty();
     }
 
     // Get a translation from a robot to a point given the distance and yaw to a
