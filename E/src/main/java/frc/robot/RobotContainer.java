@@ -9,6 +9,8 @@ import java.io.File;
 import com.ctre.phoenix6.SignalLogger;
 import com.pathplanner.lib.auto.NamedCommands;
 
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -49,7 +51,7 @@ public class RobotContainer {
   private final AutoAlign c_AutoAlign = new AutoAlign(m_swervedrive, m_vision, m_DriverController, c_MoveToDistance);
 
   public RobotContainer() {
-
+      
     // NamedCommands.registerCommand("deployIntake", m_intake.deployIntakeCommand());
     // NamedCommands.registerCommand("shoot", m_shooter.runShooter());
     // NamedCommands.registerCommand("runIntake", m_intake.runIntakeCommand());

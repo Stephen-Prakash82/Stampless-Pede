@@ -152,6 +152,7 @@ public class Vision extends SubsystemBase {
                 for (var target : result.getTargets()) {
                     if (target.getFiducialId() == tagID) {
                         targetYaw = target.getYaw();
+                        System.out.println(targetYaw);
                         return Optional.of(targetYaw);
                     }
                 }

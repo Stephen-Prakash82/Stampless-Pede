@@ -18,6 +18,7 @@ import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.Vision;
 import swervelib.SwerveController;
+import swervelib.SwerveInputStream;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -36,7 +37,7 @@ public class AutoAlign extends Command {
     private double yDesiredPose;
     private double yTranslation;
     private Pose2d poseTag;
-
+    private double yaw;
     public AutoAlign(SwerveSubsystem swervesystem, Vision visionsystem, CommandXboxController DriveController,
             moveRobotToDistance moveToDistance) {
         m_swerve = swervesystem;
@@ -49,19 +50,20 @@ public class AutoAlign extends Command {
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
+
         // CommandScheduler.getInstance().schedule(c_moveToDistance);
-        poseTag = m_vision.getTagPose(VisionConstants.ktargetTagIDs);
+        
         System.out.println("e");
-        double yaw;
-        System.out.println(m_swerve.getHeading().getDegrees());
-        Optional<Double> targetOptional = m_vision.getTargetTagYaw(10);
-        if (targetOptional.isPresent()) {
-            yaw = targetOptional.get();
-            System.out.println(yaw);
-            m_swerve.drive(m_swerve.getTargetSpeeds(0,
-                                0,
-                                Rotation2d.fromDegrees(-yaw)));
-        }
+    //     double yaw;
+    //     System.out.println(m_swerve.getHeading().getDegrees());
+    //     Optional<Double> targetOptional = m_vision.getTargetTagYaw(10);
+    //     if (targetOptional.isPresent()) {
+    //         yaw = targetOptional.get();
+    //         System.out.println(yaw);
+    //         m_swerve.drive(m_swerve.getTargetSpeeds(0,
+    //                             0,
+    //                             Rotation2d.fromDegrees(yaw)));
+    //     }
     }
     
 
@@ -105,24 +107,49 @@ public class AutoAlign extends Command {
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
-        // double yaw;
-        // Optional<Double> targetOptional = m_vision.getTargetTagYaw(10);
-        // if (targetOptional.isPresent()) {
-        //     yaw = targetOptional.get();
-        //     m_swerve.drive(m_swerve.getTargetSpeeds(m_controller.getLeftX(),
-        //                         m_controller.getLeftY(),
-        //                         Rotation2d.fromDegrees(-yaw)));
-        // }
+        System.out.println(m_swerve.getPose().getRotation());
+    //     poseTag = m_vision.getTagPose(10);
+    //     System.out.println(poseTag);
+    //     SwerveInputStream driveAngularVelocity = SwerveInputStream.of(m_swerve.getSwerveDrive(),
+    //   () -> m_controller.getLeftY() * -1,
+    //   () -> m_controller.getLeftX() * -1)
+    //   .aim(poseTag)
+    //   .aimWhile(m_vision.getTagPose(10) != Pose2d.kZero)
+    //   .deadband(OperatorConstants.kDeadband)
+    //   .scaleTranslation(OperatorConstants.kScale)
+    //   .allianceRelativeControl(true);
+      
+    //   m_swerve.driveFieldOriented(driveAngularVelocity);}
+        
+        Optional<Double> targetOptional = m_vision.getTargetTagYaw(10);
+        if (targetOptional.isPresent()) {
+            yaw = targetOptional.get();
+            Rotation2d targetRot = Rotation2d.fromDegrees(yaw + m_swerve.getPose().getRotation().getDegrees());
+            //targetRot.plus();
+            System.out.println(targetRot);
+            if (!(-1 < yaw && yaw < 1)) {
+            m_swerve.drive(m_swerve.getTargetSpeeds(m_controller.getLeftX(),
+                                m_controller.getLeftY(),
+                                targetRot));
+                                System.out.println(m_swerve.getTargetSpeeds(0,
+                                0,
+                                targetRot).omegaRadiansPerSecond);
+                                
+        }}
     }
 
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted) {
+        m_swerve.drive(Translation2d.kZero, 0,false);
     }
 
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
+        if (!(-1.5 < yaw && yaw < 1.5)) {
         return false;
+        }
+        return true;
     }
 }
