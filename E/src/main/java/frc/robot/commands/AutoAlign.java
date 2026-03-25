@@ -4,6 +4,8 @@
 
 package frc.robot.commands;
 
+import static edu.wpi.first.units.Units.Degree;
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
 
 import java.util.Optional;
@@ -12,68 +14,79 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.SwerveSubsystem;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.Vision;
+import swervelib.SwerveController;
+import swervelib.SwerveInputStream;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 
 public class AutoAlign extends Command {
-  /** Creates a new AimLock. */
-  private final SwerveSubsystem m_swerve;
-  private final Vision m_vision;
-  private final CommandXboxController m_controller;
-  private final moveRobotToDistance c_moveToDistance;
-  private Rotation2d targetYaw; // Do not use without checking if optional is present
-  private double currentDistance;
-  private double xTranslation;
-  private double xDesiredPose;
-  private double yDesiredPose;
-  private double yTranslation;
-  private Pose2d poseTag;
+    /** Creates a new AimLock. */
+    private final SwerveSubsystem m_swerve;
+    private final Vision m_vision;
+    private final CommandXboxController m_controller;
+    
+    // private double currentDistance;
+    // private double xTranslation;
+    // private double xDesiredPose;
+    // private double yDesiredPose;
+    // private double yTranslation;
+    // private Pose2d poseTag;
+    public boolean active = false;
 
-  public AutoAlign(SwerveSubsystem swervesystem, Vision visionsystem, CommandXboxController DriveController,
-      moveRobotToDistance moveToDistance) {
-    m_swerve = swervesystem;
-    m_vision = visionsystem;
-    m_controller = DriveController;
-    c_moveToDistance = moveToDistance;
-    addRequirements(m_swerve, m_vision);
-  }
+    public AutoAlign(SwerveSubsystem swervesystem, Vision visionsystem, CommandXboxController DriveController) {
+        m_swerve = swervesystem;
+        m_vision = visionsystem;
+        m_controller = DriveController;
+        addRequirements(m_swerve, m_vision);
+    }
 
-  // Called when the command is initially scheduled.
-  @Override
-  public void initialize() {
-    CommandScheduler.getInstance().schedule(c_moveToDistance);
-    poseTag = m_vision.getTagPose(VisionConstants.ktargetTagIDs[1]);
-  }
+    // Called when the command is initially scheduled.
+    @Override
+    public void initialize() {
+        active = true;
+        // CommandScheduler.getInstance().schedule(c_moveToDistance);
 
-  private Optional<Translation2d> generateCompensatedVector() {
+        System.out.println("e");
+        // double yaw;
+        // System.out.println(m_swerve.getHeading().getDegrees());
+        // Optional<Double> targetOptional = m_vision.getTargetTagYaw(10);
+        // if (targetOptional.isPresent()) {
+        // yaw = targetOptional.get();
+        // System.out.println(yaw);
+        // m_swerve.drive(m_swerve.getTargetSpeeds(0,
+        // 0,
+        // Rotation2d.fromDegrees(yaw)));
+        // }
+    }
 
-    double idealSpeed = ShooterSubsystem.distanceToVelocityMap.get(currentDistance).exitVelocityMPS();
+    // private Rotation2d generateCompensatedVector() {
 
-    Optional<Rotation2d> yawOptional = m_vision.getTargetTagYaw(VisionConstants.ktargetTagIDs[1]);
+    // double idealSpeed =
+    // ShooterSubsystem.distanceToVelocityMap.get(currentDistance).exitVelocityMPS();
 
-    yawOptional.ifPresentOrElse(
-        yaw -> targetYaw = yaw,
+    // double yaw = m_vision.getTargetTagYaw(VisionConstants.ktargetTagIDs);
 
-        () -> {
-          targetYaw = Rotation2d.kZero;
-        });
+    // Translation2d targetPosition = m_vision.robotToPoint(currentDistance,
+    // targetYaw).plus(VisionConstants.kMiddleHubTagOffset);
 
-    Translation2d targetPosition = m_vision.robotToPoint(currentDistance, targetYaw).plus(VisionConstants.kMiddleHubTagOffset);
+    // // Translation to be moved per second
+    // Translation2d robotVelocity = new
+    // Translation2d(Meters.of(m_swerve.getRobotVelocity().vxMetersPerSecond),
+    // Meters.of(m_swerve.getRobotVelocity().vyMetersPerSecond)); // Field centric
+    // velocity!
 
-    // Translation to be moved per second
-    Translation2d robotVelocity = new Translation2d(Meters.of(m_swerve.getRobotVelocity().vxMetersPerSecond),
-        Meters.of(m_swerve.getRobotVelocity().vyMetersPerSecond)); // Field centric velocity!
+    // // Calculate the ideal exit velocity magnitude (based on distance)
+    // Translation2d targetVector =
+    // targetPosition.div(currentDistance).times(idealSpeed);
 
-    // Calculate the ideal exit velocity magnitude (based on distance)
-    Translation2d targetVector = targetPosition.div(currentDistance).times(idealSpeed);
-
-    return (yawOptional.isPresent()) ? Optional.of(targetVector.minus(robotVelocity)) : Optional.empty();
+    // return yaw;
     // double turretAngle = shotVector.getAngle().getDegrees();
     // double requiredSpeed = shotVector.getNorm();
 
@@ -89,39 +102,36 @@ public class AutoAlign extends Command {
     // horizontal component of the exit velocity, NOT the total speed (RPM).
     // If your lookup table gives total speed/RPM, you must project it:
     // idealSpeed_Horizontal = Total_Speed * cos(release_angle);
-  }
+    // }
 
-  // Called every time the scheduler runs while the command is scheduled.
-  @Override
-  public void execute() {
-    // add code to turn bot constantly
-    // Uses the equation of a circle with radius currentDistance and center at the
-    // location of the tag to find the y translation for a joystick x-translation
-    currentDistance = m_vision.getTagDistance(VisionConstants.ktargetTagIDs[1]);
+    // Called every time the scheduler runs while the command is scheduled.
+    @Override
+    public void execute() {
+        Optional<Double> targetOptional = m_vision.getTargetTagYaw(10);
+        Rotation2d targetRot = m_swerve.getPose().getRotation();;
+        if (targetOptional.isPresent()) {
+            double yaw = targetOptional.get();
+            
+            // targetRot.plus();
+            // System.out.println(targetRot);
+            if (!(-1 < yaw && yaw < 1)) {
+                targetRot = Rotation2d.fromDegrees(yaw + m_swerve.getPose().getRotation().getDegrees());
+            }
+        }
+        m_swerve.driveFieldOriented(m_swerve.getTargetSpeeds(m_controller.getLeftY()*-1*OperatorConstants.kAutoAimScale,
+                    m_controller.getLeftX()*-1 * OperatorConstants.kAutoAimScale,
+                    targetRot));
+    }
 
-    yTranslation = -1 * m_controller.getLeftY() * m_swerve.getSwerveDrive().getMaximumChassisVelocity()
-        * OperatorConstants.kScale;
-    yDesiredPose = m_vision.getRobotPose().getY() + yTranslation;
-    xDesiredPose = (-1 * Math.sqrt(
-        currentDistance * currentDistance - (yDesiredPose - poseTag.getY()) * (yDesiredPose - poseTag.getY())))
-        + poseTag.getX();
-    xTranslation = xDesiredPose - m_vision.getRobotPose().getX();
-    
-    generateCompensatedVector().ifPresent(
-        yaw -> {
-          ChassisSpeeds alignVelocity = m_swerve.getTargetSpeeds(xTranslation, yTranslation, yaw.getAngle());
-          m_swerve.driveFieldOriented(alignVelocity);
-        });
-  }
+    // Called once the command ends or is interrupted.
+    @Override
+    public void end(boolean interrupted) {
+        m_swerve.drive(Translation2d.kZero, 0, false);
+    }
 
-  // Called once the command ends or is interrupted.
-  @Override
-  public void end(boolean interrupted) {
-  }
-
-  // Returns true when the command should end.
-  @Override
-  public boolean isFinished() {
-    return false;
-  }
+    // Returns true when the command should end.
+    @Override
+    public boolean isFinished() {
+        return active ? false : true;
+    }
 }

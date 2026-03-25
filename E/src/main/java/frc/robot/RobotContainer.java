@@ -25,7 +25,7 @@ import frc.robot.subsystems.Vision;
 import swervelib.SwerveInputStream;
 import frc.robot.commands.AutoAlign;
 import frc.robot.commands.ShootCommand;
-import frc.robot.commands.moveRobotToDistance;
+
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -45,11 +45,11 @@ public class RobotContainer {
   private final IntakeArm m_intake = new IntakeArm();
   CommandXboxController m_DriverController = new CommandXboxController(OperatorConstants.kDriverControllerPort);
   private final ShootCommand c_ShootCommand = new ShootCommand(m_shooter, m_intake, m_vision);
-  private final moveRobotToDistance c_MoveToDistance = new moveRobotToDistance(m_swervedrive, m_vision);
-  private final AutoAlign c_AutoAlign = new AutoAlign(m_swervedrive, m_vision, m_DriverController, c_MoveToDistance);
+
+  private final AutoAlign c_AutoAlign = new AutoAlign(m_swervedrive, m_vision, m_DriverController);
 
   public RobotContainer() {
-
+    SignalLogger.enableAutoLogging(false);
     NamedCommands.registerCommand("deployIntake", m_intake.deployIntakeCommand());
     NamedCommands.registerCommand("shoot", m_shooter.runShooter());
     NamedCommands.registerCommand("runIntake", m_intake.runIntakeCommand());
@@ -88,9 +88,9 @@ public class RobotContainer {
     //m_DriverController.rightBumper().onTrue(m_intake.deployIntakeCommand()).onFalse(m_intake.stopDeployMotorCommand());
     m_DriverController.rightTrigger().onTrue(c_ShootCommand);
     m_DriverController.leftTrigger().onTrue(m_intake.runIntakeCommand()).onFalse(m_intake.stopIntakeCommand());
-    //m_DriverController.a().toggleOnTrue(c_AutoAlign).onFalse(driveFieldOrientedAngularVelocity);
-    //m_DriverController.b().onTrue(m_swervedrive.centerModulesCommand())
-    //    .onFalse(driveFieldOrientedAngularVelocity);
+    m_DriverController.a().whileTrue(c_AutoAlign);
+    m_DriverController.b().onTrue(m_swervedrive.centerModulesCommand())
+        .onFalse(driveFieldOrientedAngularVelocity);
     m_DriverController.rightStick().onTrue(m_swervedrive.zeroGyroWithAllianceCommand())
         .onFalse(driveFieldOrientedAngularVelocity);
     //m_DriverController.x().toggleOnTrue(m_swervedrive.sysIdAngleMotorCommand());
@@ -99,8 +99,6 @@ public class RobotContainer {
     m_DriverController.povUp().whileTrue(m_shooter.FrontsysIdDynamic(SysIdRoutine.Direction.kReverse));
     m_DriverController.povLeft().whileTrue(m_shooter.RearsysIdDynamic(SysIdRoutine.Direction.kForward));
     m_DriverController.povRight().whileTrue(m_shooter.RearsysIdDynamic(SysIdRoutine.Direction.kReverse));
-    m_DriverController.a().whileTrue(m_swervedrive.sysIdAngleMotorCommand());
-    m_DriverController.b().whileTrue(m_swervedrive.sysIdDriveMotorCommand());
   }
 
   /**

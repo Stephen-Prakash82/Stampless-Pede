@@ -131,7 +131,7 @@ public class Vision extends SubsystemBase {
 
     // Get the yaw to a target
     // Uses an optional in case we cannot acquire the yaw to the target
-    public Optional<Rotation2d> getTargetTagYaw(int tagID) {
+    public Optional<Double> getTargetTagYaw(int tagID) {
 
         for (Map.Entry<String, cameraStorageObject> hashMapEntry : cameraHashMap.entrySet()) {
 
@@ -156,10 +156,10 @@ public class Vision extends SubsystemBase {
                             // If this is the tag-ID we are looking for
                             if (target.getFiducialId() == tagID) {
                                 // Found tag, record its information
-                                Rotation2d targetYaw = Rotation2d.fromRadians(target.getYaw());
+                                
 
                                 // Exit once yaw has been acquired and return yaw
-                                return Optional.of(targetYaw);
+                                return Optional.of(target.getYaw());
                             }
                         }
                     }
@@ -250,7 +250,7 @@ public class Vision extends SubsystemBase {
     // Update the swerve odometry with vision measurements periodically
     @Override
     public void periodic() {
-        getVisionPose();
+        
     }
 
 }

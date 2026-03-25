@@ -52,6 +52,7 @@ public final class Constants {
     public static final double kDeadband = 0.1;
     public static final double kScale = 0.8;
     public static final double[] kRadii = { 1, 2, 3 }; // as meters
+    public static final double kAutoAimScale = .7;
   }
 
   public static class DriveConstants {
