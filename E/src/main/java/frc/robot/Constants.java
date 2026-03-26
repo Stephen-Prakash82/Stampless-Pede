@@ -139,7 +139,7 @@ public final class Constants {
         new Transform3d(Units.inchesToMeters(-10.7755), Units.inchesToMeters(6.2376), Units.inchesToMeters(20.5609),
             new Rotation3d(0, Units.degreesToRadians(26.0313), Units.degreesToRadians(25))),
         new Transform3d(Units.inchesToMeters(-10.7768), Units.inchesToMeters(-6.2376), Units.inchesToMeters(20.5609),
-            new Rotation3d(0, Units.degreesToRadians(26.0313), Units.degreesToRadians(25))) };
+            new Rotation3d(0, Units.degreesToRadians(26.0313), -Units.degreesToRadians(25))) };
 
     // Offset from the center of the camera to the robot center
 

@@ -137,9 +137,6 @@ public class Vision extends SubsystemBase {
     public Optional<Double> getTargetTagYaw(int tagID) {
 
         for (Map.Entry<String, cameraStorageObject> hashMapEntry : cameraHashMap.entrySet()) {
-            
-            //Add a counter to see where we are in the hash-map
-            int i = 0;
 
             // Get the cameraStorageObject at entry in the hash-map
             cameraStorageObject cameraKey = hashMapEntry.getValue();
@@ -162,16 +159,14 @@ public class Vision extends SubsystemBase {
                             // If this is the tag-ID we are looking for
                             if (target.getFiducialId() == tagID) {
                                 // Found tag, record its information
-                                
-
                                 // Exit once yaw has been acquired and return yaw, add camera offset to the yaw
-                                return Optional.of(target.getYaw());
+                                //check what camera is being used and apply an offset. 
+                                return Optional.of(camera.getName() == "Camera 1" ? (target.getYaw()- Units.radiansToDegrees(VisionConstants.kCameraOffsets[0].getRotation().getZ())) : (target.getYaw()+ Units.radiansToDegrees(VisionConstants.kCameraOffsets[0].getRotation().getZ())));
                             }
                         }
-                    } //+ Units.radiansToDegrees(VisionConstants.kCameraOffsets[i].getRotation().getZ())
+                    } 
                 }
             }
-            i++;
         }
 
         // Return an empty optional if no yaw was acquired
