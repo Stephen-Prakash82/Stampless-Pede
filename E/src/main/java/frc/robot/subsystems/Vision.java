@@ -10,6 +10,8 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.util.Units;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -135,6 +137,9 @@ public class Vision extends SubsystemBase {
     public Optional<Double> getTargetTagYaw(int tagID) {
 
         for (Map.Entry<String, cameraStorageObject> hashMapEntry : cameraHashMap.entrySet()) {
+            
+            //Add a counter to see where we are in the hash-map
+            int i = 0;
 
             // Get the cameraStorageObject at entry in the hash-map
             cameraStorageObject cameraKey = hashMapEntry.getValue();
@@ -159,13 +164,14 @@ public class Vision extends SubsystemBase {
                                 // Found tag, record its information
                                 
 
-                                // Exit once yaw has been acquired and return yaw
+                                // Exit once yaw has been acquired and return yaw, add camera offset to the yaw
                                 return Optional.of(target.getYaw());
                             }
                         }
-                    }
+                    } //+ Units.radiansToDegrees(VisionConstants.kCameraOffsets[i].getRotation().getZ())
                 }
             }
+            i++;
         }
 
         // Return an empty optional if no yaw was acquired

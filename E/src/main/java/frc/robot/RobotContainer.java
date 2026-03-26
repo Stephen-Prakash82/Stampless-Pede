@@ -80,10 +80,11 @@ public class RobotContainer {
    */
 
   public void configureBindings() {
-   // Command driveFieldOrientedAngularVelocity = m_swervedrive.driveFieldOriented(driveAngularVelocity);
-    //m_swervedrive.setDefaultCommand(driveFieldOrientedAngularVelocity);
+   Command driveFieldOrientedAngularVelocity = m_swervedrive.driveFieldOriented(driveAngularVelocity);
+    m_swervedrive.setDefaultCommand(driveFieldOrientedAngularVelocity);
     m_DriverController.leftBumper().onTrue(Commands.runOnce(SignalLogger::start));
     m_DriverController.rightBumper().onTrue(Commands.runOnce(SignalLogger::stop));
+    m_DriverController.a().whileTrue(c_AutoAlign);
     //m_DriverController.leftBumper().onTrue(m_intake.retractIntakeCommand()).onTrue(m_intake.stopDeployMotorCommand());
     //m_DriverController.rightBumper().onTrue(m_intake.deployIntakeCommand()).onTrue(m_intake.stopDeployMotorCommand());
     //m_DriverController.rightTrigger().onTrue(c_ShootCommand);
@@ -91,8 +92,8 @@ public class RobotContainer {
     //m_DriverController.a().whileTrue(c_AutoAlign);
     // m_DriverController.b().onTrue(m_swervedrive.centerModulesCommand())
     //     .onTrue(driveFieldOrientedAngularVelocity);
-    // m_DriverController.rightStick().onTrue(m_swervedrive.zeroGyroWithAllianceCommand())
-    //     .onTrue(driveFieldOrientedAngularVelocity);
+    m_DriverController.rightStick().onTrue(m_swervedrive.zeroGyroWithAllianceCommand())
+        .onFalse(driveFieldOrientedAngularVelocity);
     //m_DriverController.x().toggleOnTrue(m_swervedrive.sysIdAngleMotorCommand());
     //m_DriverController.y().toggleOnTrue(m_swervedrive.sysIdDriveMotorCommand());
     //m_DriverController.povDown().onTrue(m_shooter.runShooter(m_DriverController.getLeftTriggerAxis(), m_DriverController.getLeftTriggerAxis())).onTrue(m_shooter.stop());
