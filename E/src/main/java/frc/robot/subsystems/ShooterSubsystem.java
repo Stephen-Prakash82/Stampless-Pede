@@ -20,7 +20,7 @@ import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
-import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -47,7 +47,6 @@ public class ShooterSubsystem extends SubsystemBase {
             double exitVelocityMPS) {
     }
 
-    private final VoltageOut m_voltReq = new VoltageOut(0.0);
     // in init function
     private final SparkMax m_LoaderMotor = new SparkMax(ShooterConstants.kShooterLoaderMotorCanID,
             MotorType.kBrushless);
@@ -55,7 +54,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private final TalonFX m_FrontUpperMotor = new TalonFX(ShooterConstants.kShooterFrontUpperMotorCanID);
     private final TalonFX m_FrontLowerMotor = new TalonFX(ShooterConstants.kShooterFrontLowerMotorCanID);
     private final DataEntry[] talons = new DataEntry[3];
-    private final VelocityTorqueCurrentFOC m_velocityTorque = new VelocityTorqueCurrentFOC(0).withSlot(0);
+    private final VelocityVoltage m_velocityVoltage = new VelocityVoltage(0).withSlot(0);
     public static final HashMap<Double, MotorOutputVelocities> distanceToVelocityMap = new HashMap<>();
 
     public ShooterSubsystem() {
@@ -77,8 +76,8 @@ public class ShooterSubsystem extends SubsystemBase {
         final TalonFXConfiguration rearConfig = new TalonFXConfiguration()
                 .withMotorOutput(new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Coast)
                         .withInverted(InvertedValue.Clockwise_Positive));
-        rearConfig.TorqueCurrent.withPeakForwardTorqueCurrent(Amps.of(ShooterConstants.kMaxCurrent))
-                .withPeakReverseTorqueCurrent(Amps.of(-ShooterConstants.kMaxCurrent));
+        rearConfig.Voltage.withPeakForwardVoltage(Volts.of(ShooterConstants.kMaxVoltage))
+                .withPeakReverseVoltage(Volts.of(-ShooterConstants.kMaxVoltage));
         final TalonFXConfiguration upperConfig = rearConfig.clone()
                 .withMotorOutput(rearConfig.MotorOutput.clone().withInverted(InvertedValue.CounterClockwise_Positive));
         // set slot 0 gains
@@ -86,57 +85,21 @@ public class ShooterSubsystem extends SubsystemBase {
         upperConfig.Slot0.kP = ShooterConstants.kDoubleMotorkP; // A position error of 2.5 rotations results in 12V
         upperConfig.Slot0.kI = ShooterConstants.kDoubleMotorkI; // no output for integrated error
         upperConfig.Slot0.kD = ShooterConstants.kDoubleMotorkD; // A velocity error of 1 rps results in 0.1 V output
+        upperConfig.Slot0.kV = ShooterConstants.kDoubleMotorkV; // Add 0.25 V output to overcome static friction
         upperConfig.Feedback = new FeedbackConfigs().withSensorToMechanismRatio(ShooterConstants.kFrontRotorToRoller);
         // set slot 1 gains
+
         rearConfig.Slot0.kS = ShooterConstants.kRearMotorkS; // Add 0.25 V output to overcome static friction
         rearConfig.Slot0.kP = ShooterConstants.kRearMotorkP; // A position error of 2.5 rotations results in 12 V output
         rearConfig.Slot0.kI = ShooterConstants.kRearMotorkI; // no output for integrated error
         rearConfig.Slot0.kD = ShooterConstants.kRearMotorkD; // A velocity error of 1 rps results in 0.1 V output
+        rearConfig.Slot0.kV = ShooterConstants.kRearMotorkV; // Add 0.25 V output to overcome static friction
         rearConfig.Feedback = new FeedbackConfigs().withSensorToMechanismRatio(ShooterConstants.kRearRotorToRoller);
 
         m_FrontLowerMotor.setControl(new Follower(m_FrontUpperMotor.getDeviceID(), MotorAlignmentValue.Aligned));
         m_FrontUpperMotor.getConfigurator().apply(upperConfig.Slot0);
         m_FrontLowerMotor.getConfigurator().apply(upperConfig.Slot0);
         m_RearMotor.getConfigurator().apply(rearConfig.Slot0);
-    }
-
-    private final SysIdRoutine m_rearSysIdRoutine = new SysIdRoutine(
-            new SysIdRoutine.Config(
-                    null, // Use default ramp rate (1 V/s)
-                    Volts.of(4), // Reduce dynamic step voltage to 4 to prevent brownout
-                    null, // Use default timeout (10 s)
-                          // Log state with Phoenix SignalLogger class
-                    (state) -> SignalLogger.writeString("staterear", state.toString())),
-            new SysIdRoutine.Mechanism(
-                    (volts) -> m_RearMotor.setControl(m_voltReq.withOutput(volts.in(Volts))),
-                    null,
-                    this));
-    private final SysIdRoutine m_frontSysIdRoutine = new SysIdRoutine(
-            new SysIdRoutine.Config(
-                    null, // Use default ramp rate (1 V/s)
-                    Volts.of(4), // Reduce dynamic step voltage to 4 to prevent brownout
-                    null, // Use default timeout (10 s)
-                          // Log state with Phoenix SignalLogger class
-                    (state) -> SignalLogger.writeString("statefront", state.toString())),
-            new SysIdRoutine.Mechanism(
-                    (volts) -> m_FrontUpperMotor.setControl(m_voltReq.withOutput(volts.in(Volts))),
-                    null,
-                    this));
-
-    public Command RearsysIdQuasistatic(SysIdRoutine.Direction direction) {
-        return m_rearSysIdRoutine.quasistatic(direction);
-    }
-
-    public Command RearsysIdDynamic(SysIdRoutine.Direction direction) {
-        return m_rearSysIdRoutine.dynamic(direction);
-    }
-
-    public Command FrontsysIdQuasistatic(SysIdRoutine.Direction direction) {
-        return m_frontSysIdRoutine.quasistatic(direction);
-    }
-
-    public Command FrontsysIdDynamic(SysIdRoutine.Direction direction) {
-        return m_frontSysIdRoutine.dynamic(direction);
     }
 
     public Command DoSysID() {
@@ -150,17 +113,17 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void runRearMotor(double velocity) {
-        m_RearMotor.setControl(m_velocityTorque.withVelocity(velocity));
+        m_RearMotor.setControl(m_velocityVoltage.withVelocity(velocity/60));
     }
 
     public void runFrontMotors(double velocity) {
-        m_FrontUpperMotor.setControl(m_velocityTorque.withVelocity(velocity));
+        m_FrontUpperMotor.setControl(m_velocityVoltage.withVelocity(velocity/60));
     }
 
-    public Command runShooter() {
+    public Command runShooter(double front, double back) {
         return runOnce(() -> {
-            runRearMotor(ShooterConstants.kRearMotorVelocity);
-            runFrontMotors(ShooterConstants.kFrontMotorsVelocity);
+            runRearMotor(back);
+            runFrontMotors(front);
             Timer.delay(.1);
             runLoaderMotor();
         });

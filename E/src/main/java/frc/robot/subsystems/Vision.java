@@ -18,6 +18,7 @@ import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonUtils;
 import java.util.HashMap;
+import edu.wpi.first.wpilibj2.command.Command;
 
 import frc.robot.Constants.VisionConstants;
 import frc.robot.Constants.GameConstants;
@@ -247,10 +248,17 @@ public class Vision extends SubsystemBase {
 
     }
 
-    // Update the swerve odometry with vision measurements periodically
-    @Override
-    public void periodic() {
-        
+    public Command poseTest() {
+       return run(() -> {
+           Pose2d pose = getRobotPose();
+           System.out.println(pose);
+       });
     }
+
+    // Update the swerve odometry with vision measurements periodically
+    //@Override
+    //public void periodic() {
+    //    
+    //}
 
 }
