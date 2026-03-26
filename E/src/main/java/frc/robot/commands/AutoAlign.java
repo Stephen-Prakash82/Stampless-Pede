@@ -53,7 +53,6 @@ public class AutoAlign extends Command {
         active = true;
         // CommandScheduler.getInstance().schedule(c_moveToDistance);
 
-        System.out.println("e");
         // double yaw;
         // System.out.println(m_swerve.getHeading().getDegrees());
         // Optional<Double> targetOptional = m_vision.getTargetTagYaw(10);
@@ -107,20 +106,36 @@ public class AutoAlign extends Command {
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
-        Optional<Double> targetOptional = m_vision.getTargetTagYaw(10);
-        Rotation2d targetRot = m_swerve.getPose().getRotation();;
-        if (targetOptional.isPresent()) {
-            double yaw = targetOptional.get();
+        
+        // // Use if we can't get the tag pose for some godforsaken reason...
+        // Optional<Double> targetOptional = m_vision.backupGetTargetYaw(10);
+        // Rotation2d targetRot = m_swerve.getPose().getRotation();
+        // if (targetOptional.isPresent()) {
+        //     double yaw = targetOptional.get();
             
-            // targetRot.plus();
-            // System.out.println(targetRot);
-            if (!(-1 < yaw && yaw < 1)) {
-                targetRot = Rotation2d.fromDegrees(yaw + m_swerve.getPose().getRotation().getDegrees());
-            }
+        //     // targetRot.plus();
+        //     // System.out.println(targetRot);
+        //     if (!(-1 < yaw && yaw < 1)) {
+        //         targetRot = Rotation2d.fromDegrees(yaw + m_vision.getRobotPose().getRotation().getDegrees());
+        //     }
+        // }
+        // m_swerve.driveFieldOriented(m_swerve.getTargetSpeeds(m_controller.getLeftY()*-1*OperatorConstants.kAutoAimScale,
+        //             m_controller.getLeftX()*-1 * OperatorConstants.kAutoAimScale,
+        //             targetRot));
+
+        //COMMENT THIS IMPLEMENTATION OF AIMLOCK OUT IF USING THE BACKUP
+        double targetYaw = m_vision.getTargetYaw(10);
+        Rotation2d targetRot = m_vision.getRobotPose().getRotation();
+        
+        //Create a deadband of 1 degree of yaw, meaning that if our rotation to the targetYaw is within 1 degree, we won't rotate
+        if (!(-1 < (targetYaw - m_vision.getRobotPose().getRotation().getDegrees()) && -1 < (targetYaw - m_vision.getRobotPose().getRotation().getDegrees()))) {
+            targetRot = Rotation2d.fromDegrees(targetYaw);
         }
+
         m_swerve.driveFieldOriented(m_swerve.getTargetSpeeds(m_controller.getLeftY()*-1*OperatorConstants.kAutoAimScale,
                     m_controller.getLeftX()*-1 * OperatorConstants.kAutoAimScale,
                     targetRot));
+
     }
 
     // Called once the command ends or is interrupted.

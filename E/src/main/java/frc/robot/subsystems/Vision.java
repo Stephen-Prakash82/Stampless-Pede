@@ -134,7 +134,9 @@ public class Vision extends SubsystemBase {
 
     // Get the yaw to a target
     // Uses an optional in case we cannot acquire the yaw to the target
-    public Optional<Double> getTargetTagYaw(int tagID) {
+    public Optional<Double> backupGetTargetYaw(int tagID) {
+
+        int i = 0;
 
         for (Map.Entry<String, cameraStorageObject> hashMapEntry : cameraHashMap.entrySet()) {
 
@@ -162,17 +164,23 @@ public class Vision extends SubsystemBase {
                                 // Exit once yaw has been acquired and return yaw, add camera offset to the yaw
                                 // check what camera is being used and apply an offset.
                                 return Optional.of(target.getYaw() - Units.radiansToDegrees(
-                                        VisionConstants.kCameraOffsets[camera.getName() == "Camera 1" ? 0 : 1]
+                                        VisionConstants.kCameraOffsets[i]
                                                 .getRotation().getZ()));
                             }
                         }
                     }
                 }
             }
+
+            i++;
         }
 
         // Return an empty optional if no yaw was acquired
         return Optional.empty();
+    }
+
+    public double getTargetYaw(int tagID) {
+        return getTagPose(tagID).getRotation().getDegrees();
     }
 
     // Get a translation from a robot to a point given the distance and yaw to a
