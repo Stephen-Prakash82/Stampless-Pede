@@ -16,14 +16,14 @@ public class PlaySong extends Command {
     public PlaySong(ShooterSubsystem shooter, IntakeSystem intake) {
         m_shooter = shooter;
         m_intake = intake;
-        m_Orchestra.addInstrument(m_intake.m_DeployMotor);
-        m_Orchestra.addInstrument(m_intake.m_IntakeMotor1);
-        m_Orchestra.addInstrument(m_intake.m_hopperMotor);
-        m_Orchestra.addInstrument(m_shooter.m_RearMotor);
-        m_Orchestra.addInstrument(m_shooter.m_FrontUpperMotor);
-        m_Orchestra.addInstrument(m_shooter.m_FrontLowerMotor);
+        m_Orchestra.addInstrument(m_intake.m_DeployMotor, 0);
+        m_Orchestra.addInstrument(m_intake.m_IntakeMotor1, 0);
+        m_Orchestra.addInstrument(m_intake.m_hopperMotor, 0);
+        m_Orchestra.addInstrument(m_shooter.m_RearMotor, 0);
+        m_Orchestra.addInstrument(m_shooter.m_FrontUpperMotor, 0);
+        m_Orchestra.addInstrument(m_shooter.m_FrontLowerMotor, 0);
     }
-
+    @Override
     public void initialize() {
         status = m_Orchestra.loadMusic("masterofpuppets.chrp");
         if (!status.isOK()) {
@@ -31,5 +31,8 @@ public class PlaySong extends Command {
         }
         m_Orchestra.play();
     }
-
+    @Override
+    public void end(boolean interrupted) {
+        m_Orchestra.stop();
+    } // e
 }

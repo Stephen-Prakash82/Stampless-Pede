@@ -76,9 +76,11 @@ public class SwerveSubsystem extends SubsystemBase {
         1); // Enable if you want to resynchronize your absolute encoders and motor encoders
             // periodically when they are not moving.
     swerveDrive.useExternalFeedbackSensor(); // EXPERIMENT TO TRY AND GET RID OF DEPRECATED API
-
+      
   }
-
+  public void activatePathPlanner() {
+    
+  }
   /**
    * Construct the swerve drive.
    *

@@ -48,7 +48,6 @@ public class RobotContainer {
     NamedCommands.registerCommand("deployIntake", m_intake.deployIntakeCommand());
     NamedCommands.registerCommand("shoot", c_ShootCommand);
     NamedCommands.registerCommand("runIntake", m_intake.runIntakeCommand());
-    NamedCommands.registerCommand("stopIntake", m_intake.stopIntakeCommand());
     NamedCommands.registerCommand("AimLock", c_AutoAlign);
     NamedCommands.registerCommand("poseTest", m_vision.poseTest());
 
@@ -78,14 +77,16 @@ public class RobotContainer {
   public void configureBindings() {
     Command driveFieldOrientedAngularVelocity = m_swervedrive.driveFieldOriented(driveAngularVelocity);
     m_swervedrive.setDefaultCommand(driveFieldOrientedAngularVelocity);
-    m_DriverController.leftBumper().onTrue(m_intake.retractIntakeCommand()).onFalse(m_intake.stopDeployMotorCommand());
-    m_DriverController.rightBumper().onTrue(m_intake.deployIntakeCommand()).onFalse(m_intake.stopDeployMotorCommand());
-    m_DriverController.rightTrigger().onTrue(c_ShootCommand);
-    m_DriverController.leftTrigger().onTrue(m_intake.runIntakeCommand()).onFalse(m_intake.stopIntakeCommand());
+    m_DriverController.leftBumper().whileTrue(m_intake.runIntakeCommand());
+    m_DriverController.rightBumper().whileTrue(m_intake.deployIntakeCommand());//.onFalse(m_intake.stopDeployMotorCommand());
+    m_DriverController.rightTrigger().whileTrue(c_ShootCommand);
+    m_DriverController.leftTrigger().whileTrue(m_intake.runIntakeCommand());//.onFalse(m_intake.stopIntakeCommand());
     m_DriverController.a().whileTrue(c_AutoAlign);
     m_DriverController.rightStick().onTrue(m_swervedrive.zeroGyroWithAllianceCommand())
         .onFalse(driveFieldOrientedAngularVelocity);
-    //m_DriverController.y().onTrue(c_playsong);
+    m_DriverController.b().onTrue(m_swervedrive.centerModulesCommand())
+        .onFalse(driveFieldOrientedAngularVelocity);
+    //m_DriverController.y().whileTrue(c_playsong);
     // m_DriverController.x().onTrue(m_vision.poseTest());
   }
 
