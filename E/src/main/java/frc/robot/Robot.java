@@ -11,7 +11,6 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import com.ctre.phoenix6.SignalLogger;
 
 import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.DataLogManager;
 
 /**
@@ -82,9 +81,6 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     SignalLogger.enableAutoLogging(false);
-    // UsbCamera drivercam = CameraServer.startAutomaticCapture();
-    // drivercam.setResolution(50, 50);
-    // drivercam.setFPS(30);
   }
 
   @Override

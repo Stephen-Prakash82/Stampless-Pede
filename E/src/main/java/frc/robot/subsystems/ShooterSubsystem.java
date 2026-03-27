@@ -1,27 +1,20 @@
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.ShooterConstants;
-import frc.robot.Constants.OperatorConstants;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
-import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Volts;
 
-import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
-import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
@@ -50,22 +43,22 @@ public class ShooterSubsystem extends SubsystemBase {
     // in init function
     private final SparkMax m_LoaderMotor = new SparkMax(ShooterConstants.kShooterLoaderMotorCanID,
             MotorType.kBrushless);
-    private final TalonFX m_RearMotor = new TalonFX(ShooterConstants.kShooterRearMotorCanID);
-    private final TalonFX m_FrontUpperMotor = new TalonFX(ShooterConstants.kShooterFrontUpperMotorCanID);
-    private final TalonFX m_FrontLowerMotor = new TalonFX(ShooterConstants.kShooterFrontLowerMotorCanID);
+    public final TalonFX m_RearMotor = new TalonFX(ShooterConstants.kShooterRearMotorCanID);
+    public final TalonFX m_FrontUpperMotor = new TalonFX(ShooterConstants.kShooterFrontUpperMotorCanID);
+    public final TalonFX m_FrontLowerMotor = new TalonFX(ShooterConstants.kShooterFrontLowerMotorCanID);
     private final DataEntry[] talons = new DataEntry[3];
     private final VelocityVoltage m_velocityVoltage = new VelocityVoltage(0).withSlot(0);
     public static final HashMap<Double, MotorOutputVelocities> distanceToVelocityMap = new HashMap<>();
 
     public ShooterSubsystem() {
-        distanceToVelocityMap.put(OperatorConstants.kRadii[0], new MotorOutputVelocities(100.0 / 60, 100.0 / 60, 1)); // THESE
+        distanceToVelocityMap.put(0.0, new MotorOutputVelocities(6000.0 / 60, 2900.0 / 60, 0)); // THESE
                                                                                                                       // NEED
         // ADJUSTMENT
-        distanceToVelocityMap.put(OperatorConstants.kRadii[1], new MotorOutputVelocities(200.0 / 60, 200.0 / 60, 2));// THESE
-                                                                                                                     // NEED
-        // ADJUSTMENT
-        distanceToVelocityMap.put(OperatorConstants.kRadii[2], new MotorOutputVelocities(300.0 / 60, 300.0 / 60, 3));// THESE
-                                                                                                                     // NEED
+        // distanceToVelocityMap.put(OperatorConstants.kRadii[1], new MotorOutputVelocities(200.0 / 60, 200.0 / 60, 2));// THESE
+        //                                                                                                              // NEED
+        // // ADJUSTMENT
+        // distanceToVelocityMap.put(OperatorConstants.kRadii[2], new MotorOutputVelocities(300.0 / 60, 300.0 / 60, 3));// THESE
+        //                                                                                                              // NEED
         // ADJUSTMENT
         // Initialize your shooter motors and any necessary components here
         talons[0] = new DataEntry(m_RearMotor, "Rear Talon", 0);
@@ -100,12 +93,6 @@ public class ShooterSubsystem extends SubsystemBase {
         m_FrontUpperMotor.getConfigurator().apply(upperConfig.Slot0);
         m_FrontLowerMotor.getConfigurator().apply(upperConfig.Slot0);
         m_RearMotor.getConfigurator().apply(rearConfig.Slot0);
-    }
-
-    public Command DoSysID() {
-        return runOnce(() -> {
-
-        });
     }
 
     public void runLoaderMotor() {

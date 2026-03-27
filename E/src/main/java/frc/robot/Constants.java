@@ -78,24 +78,11 @@ public final class Constants {
                                                                // necessary
     public static final double kArmToDeployRotor = 2;
     public static final double kIntakeArmRotationOffset = 95;
-    public static final double kHopperDutyCycle = .5; // Adjust as necessary
-    // public static final double kIntakeDutyCycle = .5;
+    public static final double kHopperDutyCycle = .6; // Adjust as necessary
+    public static final double kIntakeDutyCycle = .6;
 
-    public static final double kDeployMotorkP = 4.8; // A position error of 2.5 rotations results in 12 V output
-    public static final double kDeployMotorkI = 0; // no output for integrated error
-    public static final double kDeployMotorkD = 0.1;
-
-    public static final double kIntakeMotor1kS = 0.25; // Add 0.25 V output to overcome static friction
-    public static final double kIntakeMotor1kP = 4.8; // A position error of 2.5 rotations results in 12 V output
-    public static final double kIntakeMotor1kI = 0; // no output for integrated error
-    public static final double kIntakeMotor1kD = 0.1;
-
-    public static final double kDeployMaxCurrent = 40;
-    public static final double kIntakeMaxCurrent = 40;
-    public static final double kDeployPosition = 0;
-    public static final double kIntakeVelocity = 100 / 60;
-    public static final double kRetractPosition = kIntakeArmRotationOffset;
-    public static final double kIntakeJigglePosition = 15;
+    public static final double kDeployDutyCycle = .4;
+    public static final double kRetractDutyCycle = -.5;
   }
 
   public static record MotorOutputVelocities(double FrontMotorVelocity, double RearMotorVelocity) {
@@ -162,5 +149,9 @@ public final class Constants {
 
   public static class AutoConstants {
     // anyone who asks about ts is a shoot on sight
+  }
+
+  public static class MusicConstants {
+
   }
 }
