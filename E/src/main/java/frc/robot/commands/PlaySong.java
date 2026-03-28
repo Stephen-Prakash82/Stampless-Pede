@@ -22,7 +22,9 @@ public class PlaySong extends Command {
         m_Orchestra.addInstrument(m_shooter.m_RearMotor, 0);
         m_Orchestra.addInstrument(m_shooter.m_FrontUpperMotor, 0);
         m_Orchestra.addInstrument(m_shooter.m_FrontLowerMotor, 0);
+        addRequirements(m_shooter, m_intake);
     }
+
     @Override
     public void initialize() {
         status = m_Orchestra.loadMusic("masterofpuppets.chrp");
@@ -31,8 +33,14 @@ public class PlaySong extends Command {
         }
         m_Orchestra.play();
     }
+
     @Override
     public void end(boolean interrupted) {
         m_Orchestra.stop();
-    } // e
+    }
+
+    @Override
+    public boolean isFinished() {
+        return false;
+    }
 }

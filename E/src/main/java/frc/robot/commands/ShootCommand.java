@@ -2,7 +2,6 @@ package frc.robot.commands;
 
 import java.util.Map;
 
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.IntakeSystem;
@@ -18,17 +17,15 @@ public class ShootCommand extends Command {
         m_shooter = shooterArg;
         m_intakeArm = intakeArmArg;
         m_vision = visionArg;
-        addRequirements(m_shooter);
+        addRequirements(m_shooter, m_intakeArm);
     }
 
     @Override
     public void initialize() {
         double targetDistance = m_vision.getTagDistance(VisionConstants.ktargetTagIDs[1]);
-        m_shooter.runFrontMotors(ShooterSubsystem.distanceToVelocityMap.get(.5).FrontMotorVelocityRPM());
-        m_shooter.runRearMotor(getRearVelocity(targetDistance));
-        Timer.delay(.1);
-        m_intakeArm.runhopper();
-        m_shooter.runLoaderMotor();
+        m_shooter.runShooter(ShooterSubsystem.distanceToVelocityMap.get(.5).FrontMotorVelocityRPM(),
+                getRearVelocity(targetDistance));
+        m_intakeArm.runHopper();
     }
 
     @Override
@@ -47,16 +44,16 @@ public class ShootCommand extends Command {
 
     @Override
     public void end(boolean isFinished) {
-        m_intakeArm.deployIntake(0);
-        m_intakeArm.stophopper();
-        m_shooter.stopShooter();
         m_intakeArm.stopDeployMotor();
+        m_intakeArm.stopHopper();
+        m_shooter.stopShooter();
     }
 
     @Override
     public boolean isFinished() {
         return false;
     }
+
     public double getRearVelocity(double targetDistance) {
         double RearMotorVelocityRPM = 0;
         for (Map.Entry<Double, ShooterSubsystem.MotorOutputVelocities> hashMapEntry : ShooterSubsystem.distanceToVelocityMap

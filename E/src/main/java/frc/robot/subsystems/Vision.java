@@ -20,7 +20,6 @@ import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonUtils;
 import java.util.HashMap;
-import edu.wpi.first.wpilibj2.command.Command;
 
 import frc.robot.Constants.VisionConstants;
 import frc.robot.Constants.GameConstants;
@@ -31,22 +30,25 @@ import edu.wpi.first.math.geometry.Translation2d;
 
 public class Vision extends SubsystemBase {
 
+    // Initialize the SwerveSubsystem object
+    private final SwerveSubsystem m_swerve;
+
+    // Create the record that stores our camera details
     public static record cameraStorageObject(Transform3d cameraOffset, PhotonCamera cameraObject,
             PhotonPoseEstimator cameraPoseEstimator) {
     };
 
+    // Create the hash-map that helps us access our camera details for each camera
     public static final HashMap<String, cameraStorageObject> cameraHashMap = new HashMap<>();
-
-    private final SwerveSubsystem m_swerve;
 
     // Choose the field layout
     private final AprilTagFieldLayout fieldLayout = GameConstants.kFieldLayout;
 
-    // Place the corresponding camera values in the cameraHashMap
-    public Vision(SwerveSubsystem swerveDrive) {
+    // Initialize the estimateConsumer interface object
+    private final EstimateConsumer estConsumer;
 
-        // Create the swerveDrive object
-        m_swerve = swerveDrive;
+    // Place the corresponding camera values in the cameraHashMap
+    public Vision(SwerveSubsystem swerve, EstimateConsumer estimateConsumer) {
 
         // Add values to the hashmap for each defined camera name
         for (int i = 0; i < VisionConstants.kCameraNames.length; i++) {
@@ -56,6 +58,11 @@ public class Vision extends SubsystemBase {
                             new PhotonPoseEstimator(fieldLayout, VisionConstants.kCameraOffsets[i])));
 
         }
+
+        m_swerve = swerve;
+
+        // Define the estimate consumer as the lambda function
+        estConsumer = estimateConsumer;
 
     }
 
@@ -96,14 +103,9 @@ public class Vision extends SubsystemBase {
                         visionEst.ifPresent(
                                 est -> {
 
-                                    // Extract the Pose2d out of the vision measurement
-                                    Pose2d robotPose = est.estimatedPose.toPose2d();
-
-                                    // Get the timestamp of the vision measurement
-                                    double poseTimestamp = est.timestampSeconds;
-
-                                    // Send the vision measurement data to the swerve odometry
-                                    m_swerve.swerveDrive.addVisionMeasurement(robotPose, poseTimestamp, estStdDevs);
+                                    // Accept our estimated Pose2d, timestamp, and std. devs into estConsumer, which
+                                    // passes it into the lambda that was passed into estConsumer
+                                    estConsumer.accept(est.estimatedPose.toPose2d(), est.timestampSeconds, estStdDevs);
 
                                 });
                     }
@@ -115,21 +117,14 @@ public class Vision extends SubsystemBase {
 
     }
 
-    // USE THIS FUNCTION TO GET THE MOST ACCURATE ROBOT POSE!
-    public Pose2d getRobotPose() {
-        // Update our pose-estimate in swerve odometry with latest vision measurement
-        getVisionPose();
-        return m_swerve.getPose();
-    }
-
     // MAKE SURE TO ONLY USE VAILD TAG-IDs BECAUSE THERE IS NO FALLBACK IF OPTIONAL
     // VALUE FAILS!
-    public Pose2d getTagPose(int tagID) {
-        return fieldLayout.getTagPose(tagID).get().toPose2d();
+    public double getTagDistance(int tagID) {
+        return PhotonUtils.getDistanceToPose(m_swerve.getPose(), getTagPose(tagID));
     }
 
-    public double getTagDistance(int tagID) {
-        return PhotonUtils.getDistanceToPose(getRobotPose(), getTagPose(tagID));
+    public Pose2d getTagPose(int tagID) {
+        return fieldLayout.getTagPose(tagID).get().toPose2d();
     }
 
     // Get the yaw to a target
@@ -162,7 +157,7 @@ public class Vision extends SubsystemBase {
                                 // Exit once yaw has been acquired and return yaw, add camera offset to the yaw
                                 // check what camera is being used and apply an offset.
                                 return Optional.of(target.getYaw() - Units.radiansToDegrees(
-                                        VisionConstants.kCameraOffsets[camera.getName() == "Camera 1"? 0:1]
+                                        VisionConstants.kCameraOffsets[camera.getName() == "Camera 1" ? 0 : 1]
                                                 .getRotation().getZ()));
                             }
                         }
@@ -256,17 +251,30 @@ public class Vision extends SubsystemBase {
 
     }
 
-    public Command poseTest() {
-        return run(() -> {
-            Pose2d pose = getRobotPose();
-            System.out.println(pose);
-        });
+    // Explanation of an interface
+    // It is an object (called an interface) that takes in lambda functions
+    // Lambda functions are like one-time functions, they don't have names and
+    // literally just say what to do
+    // Once an instance of the interface has been defined to have the lambda you can
+    // use the accept function
+    // accept() is a function that takes in the values and passes them through the
+    // interface, which was defined the run the lambda function we passed in earlier
+    // This essentially passes the values from accept into the lambda function
+    // This is why when we make an instance of the vision subsystem, we will use
+    // something along the lines of m_swerve::addVisionMeasurement() becasue the ::
+    // (called a factory) takes the addVisionMeasurement function and passes it
+    // through as a lambda, which gets passed into estimateConsumer because it is in
+    // our constructor.
+
+    @FunctionalInterface
+    public static interface EstimateConsumer {
+        public void accept(Pose2d pose, double timestamp, Matrix<N3, N1> estimationStdDevs);
     }
 
     // Update the swerve odometry with vision measurements periodically
-    // @Override
-    // public void periodic() {
-    //
-    // }
+    @Override
+    public void periodic() {
+        getVisionPose();
+    }
 
 }

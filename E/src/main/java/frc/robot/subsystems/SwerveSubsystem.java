@@ -85,6 +85,7 @@ public class SwerveSubsystem extends SubsystemBase {
         1); // Enable if you want to resynchronize your absolute encoders and motor encoders
             // periodically when they are not moving.
     swerveDrive.useExternalFeedbackSensor(); // EXPERIMENT TO TRY AND GET RID OF DEPRECATED API
+
     activatePathPlanner();
   }
 
@@ -357,6 +358,13 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   public Pose2d getPose() {
     return swerveDrive.getPose();
+  }
+
+  // Create a pose-testing command
+  public Command poseTest() {
+    return run(() -> {
+      getPose();
+    });
   }
 
   /**

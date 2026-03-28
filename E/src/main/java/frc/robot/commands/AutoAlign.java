@@ -20,19 +20,18 @@ public class AutoAlign extends Command {
     private final SwerveSubsystem m_swerve;
     private final Vision m_vision;
     private final CommandXboxController m_controller;
-    public boolean active = false;
 
     public AutoAlign(SwerveSubsystem swervesystem, Vision visionsystem, CommandXboxController DriveController) {
         m_swerve = swervesystem;
         m_vision = visionsystem;
         m_controller = DriveController;
-        addRequirements(m_swerve, m_vision);
+        addRequirements(m_swerve);
     }
 
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
-        active = true;
+
     }
 
     // private Rotation2d generateCompensatedVector() {
@@ -86,7 +85,7 @@ public class AutoAlign extends Command {
             // targetRot.plus();
             // System.out.println(targetRot);
             if (!(-1 < yaw && yaw < 1)) {
-                targetRot = Rotation2d.fromDegrees(yaw + m_vision.getRobotPose().getRotation().getDegrees());
+                targetRot = Rotation2d.fromDegrees(yaw + m_swerve.getPose().getRotation().getDegrees());
             }
         }
         m_swerve.driveFieldOriented(
@@ -120,6 +119,6 @@ public class AutoAlign extends Command {
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-        return active ? false : true;
+        return false;
     }
 }

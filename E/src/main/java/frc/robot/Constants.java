@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import com.pathplanner.lib.config.RobotConfig;
-
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.VecBuilder;
@@ -48,12 +46,11 @@ public final class Constants {
       new Translation3d(Units.inchesToMeters(26), Units.inchesToMeters(26), Units.inchesToMeters(8)), ROBOT_MASS);
   public static final double LOOP_TIME = 0.13; // s, 20ms + 110ms sprk max velocity lag
   public static double MAX_SPEED = 4.9;
-  
+
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
     public static final double kDeadband = 0.1;
-    public static final double kScale = 0.8;
-    public static final double[] kRadii = { 1, 2, 3 }; // as meters
+    public static final double kScale = 1;
     public static final double kAutoAimScale = 0.6;
   }
 
@@ -82,7 +79,7 @@ public final class Constants {
     public static final double kIntakeArmRotationOffset = 95;
     public static final double kHopperDutyCycle = .6; // Adjust as necessary
     public static final double kIntakeDutyCycle = -1;
-
+    public static final double kIntakeVelocity = 1000;
     public static final double kRetractDutyCycle = .7;
     public static final double kDeployDutyCycle = -1;
   }
@@ -118,6 +115,7 @@ public final class Constants {
     public static final double kMaxVoltage = 12.5; // maximum applied current (amperes)
     public static final double kFrontRotorToRoller = 2;
     public static final double kRearRotorToRoller = 44 / 16;
+    public static final double kShooterSpinUpDelay = .5;
   }
 
   public static class VisionConstants {

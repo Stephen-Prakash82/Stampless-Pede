@@ -59,19 +59,15 @@ public class ShooterSubsystem extends SubsystemBase {
         // 2900.0)); // THESE
         // NEED
         distanceToVelocityMap.put(.5, new MotorOutputVelocities(6000.0, 00));// THESE
-                                                                             // NEED
-        // ADJUSTMENT
         distanceToVelocityMap.put(.75, new MotorOutputVelocities(6000.0, 00));// THESE
         distanceToVelocityMap.put(1.0, new MotorOutputVelocities(6000.0, 00));// THESE
-        distanceToVelocityMap.put(1.25, new MotorOutputVelocities(6000.0, 00));// THESE NEED
+        distanceToVelocityMap.put(1.25, new MotorOutputVelocities(6000.0, 00));// THESE
         distanceToVelocityMap.put(1.5, new MotorOutputVelocities(6000.0, 00));// THESE
         distanceToVelocityMap.put(2.0, new MotorOutputVelocities(6000.0, 00));// THESE
         // Initialize your shooter motors and any necessary components here
         talons[0] = new DataEntry(m_RearMotor, "Rear Talon", 0);
         talons[1] = new DataEntry(m_FrontUpperMotor, "Front Upper Talon", 0);
         talons[2] = new DataEntry(m_FrontLowerMotor, "Front Lower Talon", 0);
-        // The left motor is CCW+
-        // in init function
         final TalonFXConfiguration rearConfig = new TalonFXConfiguration()
                 .withMotorOutput(new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Coast)
                         .withInverted(InvertedValue.Clockwise_Positive));
@@ -113,15 +109,19 @@ public class ShooterSubsystem extends SubsystemBase {
         m_FrontUpperMotor.setControl(m_velocityVoltage.withVelocity(velocity / 60));
     }
 
-    public Command runShooter(double front, double back) {
+    public Command runShooterCommand(double front, double back) {
         return runOnce(() -> {
-            runRearMotor(back);
-            runFrontMotors(front);
-            Timer.delay(.5);
-            runLoaderMotor();
+            runShooter(front, back);
         }).finallyDo((interrupted) -> {
             stopShooter();
         });
+    }
+
+    public void runShooter(double front, double back) {
+        runFrontMotors(front);
+        runRearMotor(back);
+        Timer.delay(ShooterConstants.kShooterSpinUpDelay);
+        runLoaderMotor();
     }
 
     public void stopShooter() {
@@ -131,6 +131,7 @@ public class ShooterSubsystem extends SubsystemBase {
         m_RearMotor.stopMotor();
     }
 
+    @Deprecated
     public Command stop() {
         return runOnce(() -> {
             stopShooter();

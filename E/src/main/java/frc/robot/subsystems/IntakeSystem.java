@@ -11,6 +11,8 @@ import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+
+import edu.wpi.first.math.controller.BangBangController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class IntakeSystem extends SubsystemBase {
@@ -18,6 +20,7 @@ public class IntakeSystem extends SubsystemBase {
     public final TalonFX m_IntakeMotor1 = new TalonFX(IntakeConstants.kIntakeMotor1CanID);
     public final TalonFX m_hopperMotor = new TalonFX(IntakeConstants.kHopperMotorCanID);
     private final DutyCycleOut m_hopperDutyCycle = new DutyCycleOut(IntakeConstants.kHopperDutyCycle);
+    private final BangBangController bangBangController = new BangBangController();
 
     public IntakeSystem() {
         // Initialize your intake arm components here
@@ -68,24 +71,26 @@ public class IntakeSystem extends SubsystemBase {
     // });
     // }
 
-    public void runIntake(double dutycycle) {
-        m_IntakeMotor1.setControl(new DutyCycleOut(dutycycle));
+    public void runIntake(double velocity) {
+        // m_IntakeMotor1.setControl(new DutyCycleOut(dutycycle));
+        m_IntakeMotor1.set(-bangBangController.calculate(m_IntakeMotor1.getVelocity().getValueAsDouble(), velocity));
     }
 
     public Command runIntakeCommand() {
         return new FunctionalCommand(() -> {
-            runIntake(IntakeConstants.kIntakeDutyCycle);
+            runIntake(IntakeConstants.kIntakeVelocity);
+            runHopper();
         }, () -> {
         }, (interrupted) -> {
             stopIntake();
         }, () -> false == true, this);
     }
 
-    public void runhopper() {
+    public void runHopper() {
         m_hopperMotor.setControl(m_hopperDutyCycle);
     }
 
-    public void stophopper() {
+    public void stopHopper() {
         m_hopperMotor.stopMotor();
     }
 
@@ -93,11 +98,12 @@ public class IntakeSystem extends SubsystemBase {
         m_IntakeMotor1.stopMotor();
     }
 
-    // public Command stopIntakeCommand() {
-    // return runOnce(() -> {
-    // stopIntake();
-    // });
-    // }
+    @Deprecated
+    public Command stopIntakeCommand() {
+        return runOnce(() -> {
+            stopIntake();
+        });
+    }
 
     public double getAngle() {
         m_DeployMotor.getPosition().refresh();
