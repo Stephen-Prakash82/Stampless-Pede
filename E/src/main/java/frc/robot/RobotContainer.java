@@ -8,7 +8,6 @@ import java.io.File;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -52,6 +51,7 @@ public class RobotContainer {
     private final SendableChooser<Command> autoChooser;
 
     public RobotContainer() {
+        
         NamedCommands.registerCommand("deployIntake", m_intake.deployIntakeCommand());
         NamedCommands.registerCommand("shoot", c_ShootCommand);
         NamedCommands.registerCommand("runIntake", m_intake.runIntakeCommand());

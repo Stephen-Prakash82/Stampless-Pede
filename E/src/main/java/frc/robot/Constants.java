@@ -37,7 +37,7 @@ public final class Constants {
   public static final double ROBOT_MASS = Units.lbsToKilograms(111.5); // 32lbs * kg per pound
   public static final double ROBOT_WIDTH = Units.inchesToMeters(26);
   public static final double ROBOT_LENGTH = Units.inchesToMeters(26);
-  public static final double MOI = (1 / 12) * ROBOT_MASS * (ROBOT_LENGTH * ROBOT_LENGTH) * (ROBOT_WIDTH * ROBOT_WIDTH); // moment
+  public static final double MOI = (1 / 12) * ROBOT_MASS * (ROBOT_LENGTH * ROBOT_LENGTH) + (ROBOT_WIDTH * ROBOT_WIDTH); // moment
                                                                                                                         // of
                                                                                                                         // inertia
   public static final boolean blueAlliance = DriverStation.getAlliance().isPresent()
