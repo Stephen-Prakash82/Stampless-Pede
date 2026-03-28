@@ -79,7 +79,8 @@ public class RobotContainer {
     m_swervedrive.setDefaultCommand(driveFieldOrientedAngularVelocity);
     m_DriverController.leftBumper().whileTrue(m_intake.runIntakeCommand());
     m_DriverController.rightBumper().whileTrue(m_intake.deployIntakeCommand());//.onFalse(m_intake.stopDeployMotorCommand());
-    m_DriverController.rightTrigger().whileTrue(c_ShootCommand);
+    m_DriverController.povUp().whileTrue(c_ShootCommand);
+    m_DriverController.rightBumper().whileTrue(m_shooter.runShooter(6000, 2900));
     m_DriverController.leftTrigger().whileTrue(m_intake.runIntakeCommand());//.onFalse(m_intake.stopIntakeCommand());
     m_DriverController.a().whileTrue(c_AutoAlign);
     m_DriverController.rightStick().onTrue(m_swervedrive.zeroGyroWithAllianceCommand())

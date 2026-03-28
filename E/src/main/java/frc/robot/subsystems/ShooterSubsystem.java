@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ShooterConstants;
+
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
@@ -36,8 +37,11 @@ class DataEntry {
 
 // FINISH MOTION MAGIC BEFORE USING THIS CODE
 public class ShooterSubsystem extends SubsystemBase {
-    public static record MotorOutputVelocities(double FrontMotorVelocityRPM, double RearMotorVelocityRPM,
-            double exitVelocityMPS) {
+    public static record MotorOutputVelocities(double FrontMotorVelocityRPM, double RearMotorVelocityRPM/*
+                                                                                                         * ,
+                                                                                                         * double
+                                                                                                         * exitVelocityMPS
+                                                                                                         */) {
     }
 
     // in init function
@@ -51,15 +55,17 @@ public class ShooterSubsystem extends SubsystemBase {
     public static final HashMap<Double, MotorOutputVelocities> distanceToVelocityMap = new HashMap<>();
 
     public ShooterSubsystem() {
-        distanceToVelocityMap.put(0.0, new MotorOutputVelocities(6000.0, 2900.0, 0)); // THESE
-                                                                                                                      // NEED
+        // dumb shoot distanceToVelocityMap.put(0.0, new MotorOutputVelocities(6000.0,
+        // 2900.0)); // THESE
+        // NEED
+        distanceToVelocityMap.put(.5, new MotorOutputVelocities(6000.0, 00));// THESE
+                                                                             // NEED
         // ADJUSTMENT
-        // distanceToVelocityMap.put(OperatorConstants.kRadii[1], new MotorOutputVelocities(200.0 / 60, 200.0 / 60, 2));// THESE
-        //                                                                                                              // NEED
-        // // ADJUSTMENT
-        // distanceToVelocityMap.put(OperatorConstants.kRadii[2], new MotorOutputVelocities(300.0 / 60, 300.0 / 60, 3));// THESE
-        //                                                                                                              // NEED
-        // ADJUSTMENT
+        distanceToVelocityMap.put(.75, new MotorOutputVelocities(6000.0, 00));// THESE
+        distanceToVelocityMap.put(1.0, new MotorOutputVelocities(6000.0, 00));// THESE
+        distanceToVelocityMap.put(1.25, new MotorOutputVelocities(6000.0, 00));// THESE NEED
+        distanceToVelocityMap.put(1.5, new MotorOutputVelocities(6000.0, 00));// THESE
+        distanceToVelocityMap.put(2.0, new MotorOutputVelocities(6000.0, 00));// THESE
         // Initialize your shooter motors and any necessary components here
         talons[0] = new DataEntry(m_RearMotor, "Rear Talon", 0);
         talons[1] = new DataEntry(m_FrontUpperMotor, "Front Upper Talon", 0);
@@ -100,11 +106,11 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void runRearMotor(double velocity) {
-        m_RearMotor.setControl(m_velocityVoltage.withVelocity(velocity/60));
+        m_RearMotor.setControl(m_velocityVoltage.withVelocity(velocity / 60));
     }
 
     public void runFrontMotors(double velocity) {
-        m_FrontUpperMotor.setControl(m_velocityVoltage.withVelocity(velocity/60));
+        m_FrontUpperMotor.setControl(m_velocityVoltage.withVelocity(velocity / 60));
     }
 
     public Command runShooter(double front, double back) {
@@ -113,6 +119,8 @@ public class ShooterSubsystem extends SubsystemBase {
             runFrontMotors(front);
             Timer.delay(.5);
             runLoaderMotor();
+        }).finallyDo((interrupted) -> {
+            stopShooter();
         });
     }
 

@@ -1,8 +1,10 @@
 package frc.robot.commands;
 
+import java.util.Map;
+
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants.IntakeConstants;
+import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.IntakeSystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.Vision;
@@ -16,15 +18,14 @@ public class ShootCommand extends Command {
         m_shooter = shooterArg;
         m_intakeArm = intakeArmArg;
         m_vision = visionArg;
-        addRequirements(m_shooter, m_vision);
+        addRequirements(m_shooter);
     }
 
     @Override
     public void initialize() {
-        // closestRadius = m_vision.findClosestRadius(OperatorConstants.kRadii,
-        // m_vision.getTagDistance(VisionConstants.ktargetTagIDs[1]));
-        m_shooter.runFrontMotors(ShooterSubsystem.distanceToVelocityMap.get(0.0).FrontMotorVelocityRPM());
-        m_shooter.runRearMotor(ShooterSubsystem.distanceToVelocityMap.get(0.0).RearMotorVelocityRPM());
+        double targetDistance = m_vision.getTagDistance(VisionConstants.ktargetTagIDs[1]);
+        m_shooter.runFrontMotors(ShooterSubsystem.distanceToVelocityMap.get(.5).FrontMotorVelocityRPM());
+        m_shooter.runRearMotor(getRearVelocity(targetDistance));
         Timer.delay(.1);
         m_intakeArm.runhopper();
         m_shooter.runLoaderMotor();
@@ -32,7 +33,7 @@ public class ShootCommand extends Command {
 
     @Override
     public void execute() {
-        //Timer.delay(1);
+        // Timer.delay(1);
         // m_intakeArm.deployIntake(IntakeConstants.kRetractDutyCycle);
         // Timer.delay(.3);
         // m_intakeArm.deployIntake(IntakeConstants.kDeployDutyCycle);
@@ -55,5 +56,22 @@ public class ShootCommand extends Command {
     @Override
     public boolean isFinished() {
         return false;
+    }
+    public double getRearVelocity(double targetDistance) {
+        double RearMotorVelocityRPM = 0;
+        for (Map.Entry<Double, ShooterSubsystem.MotorOutputVelocities> hashMapEntry : ShooterSubsystem.distanceToVelocityMap
+                .entrySet()) {
+            double testDistance = hashMapEntry.getKey();
+            if (testDistance > targetDistance) {
+                double testLowDistance = testDistance - .25;
+                double RearVelocityHigh = hashMapEntry.getValue().RearMotorVelocityRPM();
+                double RearVelocityLow = ShooterSubsystem.distanceToVelocityMap.get(testLowDistance)
+                        .RearMotorVelocityRPM();
+                RearMotorVelocityRPM = ((RearVelocityHigh - RearVelocityLow) / (testDistance - testLowDistance))
+                        * (targetDistance - testLowDistance) + RearVelocityLow;
+                return RearMotorVelocityRPM;
+            }
+        }
+        return 0;
     }
 }

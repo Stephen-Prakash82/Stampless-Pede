@@ -11,8 +11,6 @@ import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-
-import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class IntakeSystem extends SubsystemBase {
@@ -42,17 +40,19 @@ public class IntakeSystem extends SubsystemBase {
 
     public Command deployIntakeCommand() {
         return new FunctionalCommand(() -> {
-        }, () -> {
             deployIntake(IntakeConstants.kDeployDutyCycle);
+        }, () -> {
         }, (interrupted) -> {
             stopDeployMotor();
-        }, () -> false == true, this);
+        }, () -> {
+            return false;
+        }, this);
     }
 
     public Command retractIntakeCommand() {
         return new FunctionalCommand(() -> {
-        }, () -> {
             deployIntake(IntakeConstants.kRetractDutyCycle);
+        }, () -> {
         }, (interrupted) -> {
             stopDeployMotor();
         }, () -> false == true, this);
@@ -63,9 +63,9 @@ public class IntakeSystem extends SubsystemBase {
     }
 
     // public Command stopDeployMotorCommand() {
-    //     return runOnce(() -> {
-    //         stopDeployMotor();
-    //     });
+    // return runOnce(() -> {
+    // stopDeployMotor();
+    // });
     // }
 
     public void runIntake(double dutycycle) {
@@ -74,8 +74,8 @@ public class IntakeSystem extends SubsystemBase {
 
     public Command runIntakeCommand() {
         return new FunctionalCommand(() -> {
-        }, () -> {
             runIntake(IntakeConstants.kIntakeDutyCycle);
+        }, () -> {
         }, (interrupted) -> {
             stopIntake();
         }, () -> false == true, this);
@@ -94,9 +94,9 @@ public class IntakeSystem extends SubsystemBase {
     }
 
     // public Command stopIntakeCommand() {
-    //     return runOnce(() -> {
-    //         stopIntake();
-    //     });
+    // return runOnce(() -> {
+    // stopIntake();
+    // });
     // }
 
     public double getAngle() {

@@ -35,7 +35,7 @@ public class Vision extends SubsystemBase {
             PhotonPoseEstimator cameraPoseEstimator) {
     };
 
-    public static HashMap<String, cameraStorageObject> cameraHashMap = new HashMap<>();
+    public static final HashMap<String, cameraStorageObject> cameraHashMap = new HashMap<>();
 
     private final SwerveSubsystem m_swerve;
 

@@ -27,7 +27,6 @@ import java.util.Arrays;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
-import com.ctre.phoenix6.swerve.utility.WheelForceCalculator.Feedforwards;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.config.PIDConstants;
@@ -86,7 +85,7 @@ public class SwerveSubsystem extends SubsystemBase {
         1); // Enable if you want to resynchronize your absolute encoders and motor encoders
             // periodically when they are not moving.
     swerveDrive.useExternalFeedbackSensor(); // EXPERIMENT TO TRY AND GET RID OF DEPRECATED API
-
+    activatePathPlanner();
   }
 
   public void activatePathPlanner() {
