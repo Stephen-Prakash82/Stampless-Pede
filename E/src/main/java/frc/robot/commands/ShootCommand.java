@@ -2,8 +2,10 @@ package frc.robot.commands;
 
 import java.util.Map;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants.VisionConstants;
+import frc.robot.Constants.IntakeConstants;
+import  frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.IntakeSystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.Vision;
@@ -31,20 +33,20 @@ public class ShootCommand extends Command {
     @Override
     public void execute() {
         // Timer.delay(1);
-        // m_intakeArm.deployIntake(IntakeConstants.kRetractDutyCycle);
+        // m_intakeArm.deployIntake(.3);
         // Timer.delay(.3);
-        // m_intakeArm.deployIntake(IntakeConstants.kDeployDutyCycle);
+        // m_intakeArm.deployIntake(-.3);
         // Timer.delay(.3);
-        // m_intakeArm.deployIntake(IntakeConstants.kRetractDutyCycle);
+        // m_intakeArm.deployIntake(.3);
         // Timer.delay(.3);
-        // m_intakeArm.deployIntake(IntakeConstants.kDeployDutyCycle);
+        // m_intakeArm.deployIntake(-.3);
         // Timer.delay(.3);
         // m_intakeArm.stopDeployMotor();
     }
 
     @Override
     public void end(boolean isFinished) {
-        m_intakeArm.stopDeployMotor();
+        //m_intakeArm.stopDeployMotor();
         m_intakeArm.stopHopper();
         m_shooter.stopShooter();
     }

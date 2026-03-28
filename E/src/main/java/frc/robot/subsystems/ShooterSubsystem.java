@@ -53,11 +53,12 @@ public class ShooterSubsystem extends SubsystemBase {
     private final DataEntry[] talons = new DataEntry[3];
     private final VelocityVoltage m_velocityVoltage = new VelocityVoltage(0).withSlot(0);
     public static final HashMap<Double, MotorOutputVelocities> distanceToVelocityMap = new HashMap<>();
-
-    public ShooterSubsystem() {
+    private final IntakeSystem m_intake;
+    public ShooterSubsystem(IntakeSystem intake) {
         // dumb shoot distanceToVelocityMap.put(0.0, new MotorOutputVelocities(6000.0,
         // 2900.0)); // THESE
         // NEED
+        m_intake = intake;
         distanceToVelocityMap.put(.5, new MotorOutputVelocities(6000.0, 00));// THESE
         distanceToVelocityMap.put(.75, new MotorOutputVelocities(6000.0, 00));// THESE
         distanceToVelocityMap.put(1.0, new MotorOutputVelocities(6000.0, 00));// THESE
@@ -110,11 +111,29 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public Command runShooterCommand(double front, double back) {
-        return runOnce(() -> {
+        return run(() -> {
             runShooter(front, back);
-        }).finallyDo((interrupted) -> {
+            m_intake.runHopper();
+            Timer.delay(1);
+        //m_intake.deployIntake(.3);
+        m_intake.runIntake(.3);
+        Timer.delay(.3);
+       // m_intake.deployIntake(-.3);
+        m_intake.runIntake(-.5);
+        Timer.delay(.3);
+        m_intake.runIntake(.3);
+       // m_intake.deployIntake(.3);
+        Timer.delay(.3);
+        m_intake.runIntake(-.5);
+        //m_intake.deployIntake(-.3);
+        Timer.delay(.3);
+        m_intake.stopIntake();
+       // m_intake.stopDeployMotor();
+        })
+        .finallyDo((interrupted) -> {
             stopShooter();
-        });
+            m_intake.stopHopper();
+    });
     }
 
     public void runShooter(double front, double back) {

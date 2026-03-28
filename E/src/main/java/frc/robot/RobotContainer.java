@@ -6,6 +6,7 @@ package frc.robot;
 
 import java.io.File;
 
+import com.ctre.phoenix6.SignalLogger;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
@@ -23,7 +24,7 @@ import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.Vision;
 import swervelib.SwerveInputStream;
 import frc.robot.commands.AutoAlign;
-import frc.robot.commands.PlaySong;
+//import frc.robot.commands.PlaySong;
 import frc.robot.commands.ShootCommand;
 
 /**
@@ -40,9 +41,10 @@ public class RobotContainer {
     public final SwerveSubsystem m_swervedrive = new SwerveSubsystem(
             new File(Filesystem.getDeployDirectory(), "swerve"));
     private final Vision m_vision = new Vision(m_swervedrive, m_swervedrive.swerveDrive::addVisionMeasurement);
-    private final ShooterSubsystem m_shooter = new ShooterSubsystem();
+   
     private final IntakeSystem m_intake = new IntakeSystem();
-    private final PlaySong c_playsong = new PlaySong(m_shooter, m_intake);
+     private final ShooterSubsystem m_shooter = new ShooterSubsystem(m_intake);
+    //private final PlaySong c_playsong = new PlaySong(m_shooter, m_intake);
     private final CommandXboxController m_DriverController = new CommandXboxController(
             OperatorConstants.kDriverControllerPort);
     private final ShootCommand c_ShootCommand = new ShootCommand(m_shooter, m_intake, m_vision);
@@ -51,12 +53,12 @@ public class RobotContainer {
     private final SendableChooser<Command> autoChooser;
 
     public RobotContainer() {
-        
-        NamedCommands.registerCommand("deployIntake", m_intake.deployIntakeCommand());
+        SignalLogger.enableAutoLogging(false);
+        //NamedCommands.registerCommand("deployIntake", m_intake.deployIntakeCommand());
         NamedCommands.registerCommand("shoot", c_ShootCommand);
         NamedCommands.registerCommand("runIntake", m_intake.runIntakeCommand());
         NamedCommands.registerCommand("AimLock", c_AutoAlign);
-        NamedCommands.registerCommand("poseTest", m_swervedrive.poseTest());
+        NamedCommands.registerCommand("poseTest", m_vision.poseTest());
 
         autoChooser = AutoBuilder.buildAutoChooserWithOptionsModifier(
                 (stream) -> stream);
@@ -65,8 +67,8 @@ public class RobotContainer {
     }
 
     SwerveInputStream driveAngularVelocity = SwerveInputStream.of(m_swervedrive.getSwerveDrive(),
-            () -> m_DriverController.getLeftY() * -1,
-            () -> m_DriverController.getLeftX() * -1)
+            () -> m_DriverController.getLeftY(),
+            () -> m_DriverController.getLeftX())
             .withControllerRotationAxis(m_DriverController::getRightX)
             .deadband(OperatorConstants.kDeadband)
             .scaleTranslation(OperatorConstants.kScale)
@@ -88,23 +90,32 @@ public class RobotContainer {
         Command driveFieldOrientedAngularVelocity = m_swervedrive.driveFieldOriented(driveAngularVelocity);
         m_swervedrive
                 .setDefaultCommand(
-                        driveFieldOrientedAngularVelocity.withInterruptBehavior(InterruptionBehavior.kCancelSelf));
-        m_DriverController.leftBumper()
-                .whileTrue(m_intake.runIntakeCommand().withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
-        m_DriverController.rightBumper()
-                .whileTrue(m_intake.deployIntakeCommand().withInterruptBehavior(InterruptionBehavior.kCancelIncoming));// .onFalse(m_intake.stopDeployMotorCommand());
-        m_DriverController.povUp().whileTrue(c_ShootCommand.withInterruptBehavior(InterruptionBehavior.kCancelSelf));
-        m_DriverController.rightBumper()
-                .whileTrue(m_shooter.runShooterCommand(6000, 2900)
-                        .withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
+                        driveFieldOrientedAngularVelocity);
+        // m_DriverController.leftBumper()
+        //         .whileTrue(m_intake.retractIntakeCommand()
+        // );
+        // m_DriverController.rightBumper()
+        //         .whileTrue(m_intake.deployIntakeCommand()
+        // );// .onFalse(m_intake.stopDeployMotorCommand());
+        //m_DriverController.povUp().whileTrue(c_ShootCommand.withInterruptBehavior(InterruptionBehavior.kCancelSelf));
+        m_DriverController.rightTrigger()
+                .whileTrue(m_shooter.runShooterCommand(6000, 3600)
+                                 
+        );
         m_DriverController.leftTrigger().whileTrue(m_intake.runIntakeCommand());// .onFalse(m_intake.stopIntakeCommand());
         m_DriverController.a().whileTrue(c_AutoAlign);
         m_DriverController.rightStick().onTrue(m_swervedrive.zeroGyroWithAllianceCommand())
                 .onFalse(driveFieldOrientedAngularVelocity);
         m_DriverController.b().onTrue(m_swervedrive.centerModulesCommand())
                 .onFalse(driveFieldOrientedAngularVelocity);
-        m_DriverController.y().whileTrue(c_playsong.withInterruptBehavior(InterruptionBehavior.kCancelSelf));
+        //m_DriverController.y().whileTrue(c_playsong.withInterruptBehavior(InterruptionBehavior.kCancelSelf));
         // m_DriverController.x().whileTrue(m_swervedrive.poseTest());
+        m_DriverController.povDown().whileTrue(m_shooter.runShooterCommand(6000, 2500));
+         m_DriverController.povUp().whileTrue(m_shooter.runShooterCommand(6000, 2550));
+          m_DriverController.povLeft().whileTrue(m_shooter.runShooterCommand(6000, 2650));
+           m_DriverController.povRight().whileTrue(m_shooter.runShooterCommand(6000, 2750));
+            m_DriverController.x().whileTrue(m_shooter.runShooterCommand(6000, 2800));
+                        m_DriverController.y().whileTrue(m_shooter.runShooterCommand(6000, 2850));
     }
 
     /**

@@ -23,6 +23,7 @@ import java.util.HashMap;
 
 import frc.robot.Constants.VisionConstants;
 import frc.robot.Constants.GameConstants;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -97,7 +98,7 @@ public class Vision extends SubsystemBase {
                         }
 
                         // Change our trust in the measurement based on the tags we can see
-                        Matrix<N3, N1> estStdDevs = getEstimationStdDevs(visionEst, result.getTargets(),
+                        Matrix<N3, N1> estStdDevs = getVisionEstimatedStdDevs(visionEst, result.getTargets(),
                                 photonEstimator);
 
                         visionEst.ifPresent(
@@ -115,6 +116,40 @@ public class Vision extends SubsystemBase {
             }
         }
 
+    }
+
+    public Pose2d getRobotPose() {
+        getVisionPose();
+        return m_swerve.getPose();
+    }
+
+    public Rotation2d getRobotHeading() {
+        getVisionPose();
+        return m_swerve.getHeading();
+    }
+
+    public void zeroGyroWithAllianceVision() {
+        if (m_swerve.isRedAlliance()) {
+            m_swerve.swerveDrive.zeroGyro();
+            // Set the pose 180 degrees
+            m_swerve.resetOdometry(new Pose2d(getRobotPose().getTranslation(), Rotation2d.fromDegrees(180)));
+        } else {
+            m_swerve.swerveDrive.zeroGyro();
+            m_swerve.resetOdometry(getRobotPose());
+        }
+    }
+
+    public Command zeroGyroWithAllianceVisionCommand() {
+        return run(() -> {
+            zeroGyroWithAllianceVision();
+        });
+    }
+
+    // Create a pose-testing command
+    public Command poseTest() {
+        return run(() -> {
+            m_swerve.getPose();
+        });
     }
 
     // MAKE SURE TO ONLY USE VAILD TAG-IDs BECAUSE THERE IS NO FALLBACK IF OPTIONAL
@@ -198,7 +233,7 @@ public class Vision extends SubsystemBase {
 
     // Std Dev Calculation from Docs:
     // https://github.com/PhotonVision/photonvision/blob/e8efef476b3b4681c8899a8720774d6dbd5ccf56/photonlib-java-examples/poseest/src/main/java/frc/robot/Robot.java
-    private Matrix<N3, N1> getEstimationStdDevs(
+    private Matrix<N3, N1> getVisionEstimatedStdDevs(
             Optional<EstimatedRobotPose> estimatedPose, List<PhotonTrackedTarget> targets,
             PhotonPoseEstimator poseEstimator) {
 
@@ -272,9 +307,9 @@ public class Vision extends SubsystemBase {
     }
 
     // Update the swerve odometry with vision measurements periodically
-    @Override
-    public void periodic() {
-        getVisionPose();
-    }
+    // @Override
+    // public void periodic() {
+    //  getVisionPose();
+    // }
 
 }

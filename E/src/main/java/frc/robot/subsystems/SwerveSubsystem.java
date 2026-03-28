@@ -32,10 +32,17 @@ import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.revrobotics.PersistMode;
+import com.revrobotics.ResetMode;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkBaseConfig;
+import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
 import swervelib.SwerveDriveTest;
+import swervelib.encoders.CANCoderSwerve;
 import swervelib.math.SwerveMath;
 import swervelib.parser.SwerveDriveConfiguration;
 import swervelib.parser.SwerveParser;
@@ -73,6 +80,7 @@ public class SwerveSubsystem extends SubsystemBase {
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
+
     swerveDrive.setHeadingCorrection(false); // Heading correction should only be used while controlling the robot via
                                              // angle.
     swerveDrive.setCosineCompensator(false);// !SwerveDriveTelemetry.isSimulation); // Disables cosine compensation for
@@ -84,8 +92,8 @@ public class SwerveSubsystem extends SubsystemBase {
     swerveDrive.setModuleEncoderAutoSynchronize(false,
         1); // Enable if you want to resynchronize your absolute encoders and motor encoders
             // periodically when they are not moving.
-    swerveDrive.useExternalFeedbackSensor(); // EXPERIMENT TO TRY AND GET RID OF DEPRECATED API
-
+    swerveDrive.useExternalFeedbackSensor(); // EXPERIMENT TO TRY AND GET RID OF
+    // DEPRECATED API
     activatePathPlanner();
   }
 
@@ -165,12 +173,13 @@ public class SwerveSubsystem extends SubsystemBase {
       resetOdometry(new Pose2d(getPose().getTranslation(), Rotation2d.fromDegrees(180)));
     } else {
       zeroGyro();
+      resetOdometry(getPose());
     }
   }
 
   public void zeroGyro() {
     swerveDrive.zeroGyro();
-    resetOdometry(getPose());
+
   }
 
   public Command zeroGyroWithAllianceCommand() {
@@ -360,13 +369,6 @@ public class SwerveSubsystem extends SubsystemBase {
     return swerveDrive.getPose();
   }
 
-  // Create a pose-testing command
-  public Command poseTest() {
-    return run(() -> {
-      getPose();
-    });
-  }
-
   /**
    * Set chassis speeds with closed-loop velocity control.
    *
@@ -396,7 +398,7 @@ public class SwerveSubsystem extends SubsystemBase {
    * @return true if the red alliance, false if blue. Defaults to false if none is
    *         available.
    */
-  private boolean isRedAlliance() {
+  public boolean isRedAlliance() {
     var alliance = DriverStation.getAlliance();
     return alliance.isPresent() ? alliance.get() == DriverStation.Alliance.Red : false;
   }
